@@ -1,9 +1,11 @@
 FROM richarvey/nginx-php-fpm:3.1.6
 
-# Copy semua fail projek ke dalam Docker
+# 1. Install Node.js & NPM (Ini ubat untuk error "npm not found")
+RUN apk add --no-cache nodejs npm
+
 COPY . .
 
-# Setting wajib untuk Render
+# Setting Server
 ENV WEBROOT /var/www/html/public
 ENV PHP_ERRORS_STDERR 1
 ENV RUN_SCRIPTS 1
@@ -14,12 +16,15 @@ ENV APP_ENV production
 ENV APP_DEBUG true
 ENV LOG_CHANNEL stderr
 
-# Benarkan Composer run
+# Benarkan Composer
 ENV COMPOSER_ALLOW_SUPERUSER 1
 
-# Install dependencies masa build
+# Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 RUN php artisan config:clear
+RUN php artisan storage:link
+
+# 2. Build Assets (Sekarang Node.js dah ada, dia boleh jalan)
 RUN npm install
 RUN npm run build
 
