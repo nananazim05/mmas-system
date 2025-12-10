@@ -28,5 +28,9 @@ RUN php artisan storage:link
 RUN npm install
 RUN npm run build
 
-# 3. Auto Migrate & Start
-CMD php artisan migrate --force && /start.sh
+
+COPY deploy.sh /deploy.sh
+RUN chmod +x /deploy.sh
+
+
+CMD ["/deploy.sh"]
