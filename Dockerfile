@@ -1,6 +1,6 @@
 FROM richarvey/nginx-php-fpm:3.1.6
 
-# 1. Install Node.js & NPM (Ini ubat untuk error "npm not found")
+# 1. Install Node.js & NPM
 RUN apk add --no-cache nodejs npm
 
 COPY . .
@@ -24,8 +24,9 @@ RUN composer install --no-dev --optimize-autoloader
 RUN php artisan config:clear
 RUN php artisan storage:link
 
-# 2. Build Assets (Sekarang Node.js dah ada, dia boleh jalan)
+# 2. Build Assets 
 RUN npm install
 RUN npm run build
 
-CMD ["/start.sh"]
+# 3. Auto Migrate & Start
+CMD php artisan migrate --force && /start.sh
