@@ -13,7 +13,6 @@ class MeetingCancelled extends Mailable
     public $title;
     public $date;
 
-    // Kita simpan tajuk & tarikh saja sebab data meeting akan dipadam
     public function __construct($title, $date)
     {
         $this->title = $title;

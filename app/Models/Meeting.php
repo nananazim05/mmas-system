@@ -33,7 +33,7 @@ class Meeting extends Model
         return $this->hasMany(Invitation::class);
     }
 
-    // Hubungan: Meeting ada ramai Peserta Hadir (Attendances) - INI YANG KITA TAMBAH
+    // Hubungan: Meeting ada ramai Peserta Hadir (Attendances) 
     public function attendances()
     {
         return $this->hasMany(Attendance::class);

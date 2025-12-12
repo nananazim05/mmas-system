@@ -7,7 +7,10 @@
     <div style="border-top: 4px solid #B6192E; padding: 20px; background-color: #f9f9f9;">
         <h2 style="color: #B6192E;">Jemputan ke {{ $meeting->title }}</h2>
         
-        <p>Tuan/Puan,</p>
+        <p>
+        Assalamualaikum WBT & Salam Sejahtera, <br>
+        YBhg. Datuk / Dato' / YBrs. Ts. / Dr. / Tc. / Tuan / Puan,
+        </p>
         <p>Anda dijemput hadir ke aktiviti berikut:</p>
         
         <div style="background: white; padding: 15px; border: 1px solid #ddd; border-radius: 5px;">
@@ -19,7 +22,7 @@
             </ul>
         </div>
 
-        <p>Sila simpan e-mel ini. Pada hari kejadian, sila imbas <strong>Kod QR</strong> yang akan dipaparkan oleh urusetia untuk pengesahan kehadiran.</p>
+        <p>Sila imbas <strong>Kod QR</strong> yang akan dipaparkan oleh urusetia semasa hari program berlangsung untuk pengesahan kehadiran.</p>
         
         <br>
         <p style="font-size: 12px; color: #777;">Terima kasih,<br>Sistem MMAS MTIB</p>

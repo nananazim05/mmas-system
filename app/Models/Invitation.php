@@ -17,7 +17,6 @@ class Invitation extends Model
         'status',
     ];
 
-    // HUBUNGAN PENTING (INI YANG HILANG TADI)
     
     // 1. Satu Jemputan milik satu Meeting
     public function meeting()
