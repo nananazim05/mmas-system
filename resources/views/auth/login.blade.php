@@ -2,7 +2,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>MMAS - Log Masuk</title>
@@ -16,15 +16,15 @@
     <body class="font-sans text-gray-900 antialiased" 
           style="background: linear-gradient(135deg, #121521 10%, #38476b 35%, #b6192e 60%, #ffc1ac 75%, #f5a09a 100%); background-attachment: fixed;">
         
-        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0">
+        <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 px-4">
             
-            <div class="w-full sm:max-w-md mt-6 px-10 py-12 bg-[#FFFBF2] shadow-2xl overflow-hidden rounded-xl">
+            <div class="w-full sm:max-w-md mt-6 px-6 py-8 sm:px-10 sm:py-12 bg-[#FFFBF2] shadow-2xl overflow-hidden rounded-xl">
                 
                 <div class="flex flex-col items-center mb-8">
-                    <img src="{{ asset('images/logo-mmas.png') }}" alt="MMAS Logo" class="h-24 w-auto mb-4 drop-shadow-md">
+                    <img src="{{ asset('images/logo-mmas.png') }}" alt="MMAS Logo" class="h-20 sm:h-24 w-auto mb-4 drop-shadow-md">
                     
-                    <h1 class="text-3xl font-extrabold text-[#7F0000] tracking-tight">MMAS</h1>
-                    <p class="text-gray-800 text-sm font-medium mt-1">MTIB Meeting Attendance System</p>
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-[#7F0000] tracking-tight text-center">MMAS</h1>
+                    <p class="text-gray-800 text-xs sm:text-sm font-medium mt-1 text-center">MTIB Meeting Attendance System</p>
                 </div>
 
                 <x-auth-session-status class="mb-4" :status="session('status')" />
@@ -70,7 +70,7 @@
                 </form>
             </div>
             
-            <div class="mt-8 text-white/60 text-xs">
+            <div class="mt-8 text-white/60 text-xs text-center">
                  &copy; {{ date('Y') }} MTIB. All rights reserved.
             </div>
         </div>
