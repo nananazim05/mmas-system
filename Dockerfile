@@ -1,36 +1,32 @@
-FROM richarvey/nginx-php-fpm:3.1.6
+FROM php:8.2-apache
 
-# 1. Install Node.js & NPM
-RUN apk add --no-cache nodejs npm
+# Install barang keperluan asas
+RUN apt-get update && apt-get install -y \
+    libzip-dev \
+    zip \
+    unzip \
+    && docker-php-ext-install pdo_mysql zip
 
+# Hidupkan mod Rewrite (Supaya tak keluar 404 bila klik link)
+RUN a2enmod rewrite
+
+# Set folder kerja dalam server
+WORKDIR /var/www/html
+
+# Copy semua fail dari laptop ke server
 COPY . .
 
-# Setting Server
-ENV WEBROOT /var/www/html/public
-ENV PHP_ERRORS_STDERR 1
-ENV RUN_SCRIPTS 1
-ENV REAL_IP_HEADER 1
-
-# Setting Laravel
-ENV APP_ENV production
-ENV APP_DEBUG true
-ENV LOG_CHANNEL stderr
-
-# Benarkan Composer
-ENV COMPOSER_ALLOW_SUPERUSER 1
-
-# Install PHP dependencies
+# Install Composer (Manager untuk PHP)
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 RUN composer install --no-dev --optimize-autoloader
-RUN php artisan config:clear
-RUN php artisan storage:link
 
-# 2. Build Assets 
-RUN npm install
-RUN npm run build
+# Tukar permission supaya Laravel boleh tulis fail cache/log
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
+# Ubah setting Apache supaya baca folder PUBLIC
+ENV APACHE_DOCUMENT_ROOT /var/www/html/public
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
+RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
 
-COPY deploy.sh /deploy.sh
-RUN chmod +x /deploy.sh
-
-
-CMD ["/deploy.sh"]
+# Buka Port 80 (Standard web)
+RUN sed -i 's/80/${PORT}/g' /etc/apache2/ports.conf /etc/apache2/sites-available/*.conf
