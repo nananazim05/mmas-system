@@ -4,8 +4,9 @@ use App\Http\Controllers\StaffController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MeetingController;
-use App\Http\Controllers\AttendanceController; // 1. Pastikan ini ada!
+use App\Http\Controllers\AttendanceController; 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Mail;
 
 // 1. Lencongan Utama
 Route::get('/', function () {
@@ -57,7 +58,7 @@ Route::middleware('auth')->group(function () {
 
 });
 
-// 4. ROUTE KEHADIRAN (WAJIB ADA DI SINI)
+// 4. ROUTE KEHADIRAN 
 Route::get('/attendance/scan/{meeting}/{code}', [AttendanceController::class, 'scan'])->name('attendance.scan');
 Route::post('/attendance/store/{meeting}', [AttendanceController::class, 'store'])->name('attendance.store');
 

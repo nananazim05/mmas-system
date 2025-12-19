@@ -23,7 +23,7 @@ class AttendanceController extends Controller
             abort(403, 'Kod QR ini telah luput atau tidak sah. Sila imbas Kod QR terkini di skrin penganjur.');
         }
 
-        // 3. Semak Waktu Mesyuarat (URS: Aktif 15 minit sebelum & 15 minit selepas)
+        // 3. Semak Waktu Mesyuarat (Aktif 15 minit sebelum & 15 minit selepas)
         $now = Carbon::now();
         $startTime = Carbon::parse($meeting->date . ' ' . $meeting->start_time)->subMinutes(15);
         $endTime = Carbon::parse($meeting->date . ' ' . $meeting->end_time)->addMinutes(15);
