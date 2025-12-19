@@ -7,6 +7,7 @@ use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\AttendanceController; 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Artisan;
 
 // 1. Lencongan Utama
 Route::get('/', function () {
@@ -69,5 +70,12 @@ Route::get('/lang/{locale}', function ($locale) {
     }
     return redirect()->back(); // Kembali ke halaman asal
 })->name('change.lang');
+
+Route::get('/run-migration', function () {
+    //paksa Laravel jalankan fail migration 'fix' yang tertunggak
+    Artisan::call('migrate', ['--force' => true]);
+    
+    return 'Migration berjaya dijalankan! Sila semak form aktiviti sekarang.';
+});
 
 require __DIR__.'/auth.php';
