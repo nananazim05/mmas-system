@@ -59,9 +59,8 @@ class AttendanceController extends Controller
         if ($request->attendance_type === 'staff') {
             
             // --- SENARIO 1: STAF MTIB (Guna No Pekerja) ---
-            // Cari user berdasarkan column 'staff_id' dalam table users
-            // Pastikan nama column dalam database awak betul-betul 'staff_id'
-            $registeredUser = User::where('staff_id', $request->staff_id)->first();
+            
+            $registeredUser = User::where('staff_number', $request->staff_id)->first();
 
             // KALAU NO PEKERJA SALAH / TAK WUJUD
             if (!$registeredUser) {
@@ -97,7 +96,7 @@ class AttendanceController extends Controller
     public function history()
     {
         // Ambil semua jemputan untuk user yang sedang login
-        $histories = \App\Models\Invitation::where('user_id', Auth::id())
+        $histories = \App\Models\Invitation::where('staff_number', Auth::id())
                         ->with(['meeting', 'meeting.attendances' => function($q) {
                             // Ambil data kehadiran user ini untuk meeting tersebut
                             $q->where('user_id', Auth::id());
