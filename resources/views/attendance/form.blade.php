@@ -6,16 +6,8 @@
     <title>Kehadiran - {{ $meeting->title }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .active-tab {
-            background-color: #B6192E;
-            color: white;
-            border-color: #B6192E;
-        }
-        .inactive-tab {
-            background-color: white;
-            color: #4b5563;
-            border-color: #e5e7eb;
-        }
+        .active-tab { background-color: #B6192E; color: white; border-color: #B6192E; }
+        .inactive-tab { background-color: white; color: #4b5563; border-color: #e5e7eb; }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
@@ -30,14 +22,8 @@
             <div class="mb-6 text-center border-b pb-6">
                 <h1 class="text-2xl font-bold text-gray-800 mb-2 leading-tight">{{ $meeting->title }}</h1>
                 <div class="flex justify-center items-center gap-4 text-sm text-gray-600 mt-2">
-                    <div class="flex items-center">
-                        <span class="mr-1">📅</span> 
-                        {{ \Carbon\Carbon::parse($meeting->date)->format('d M Y') }}
-                    </div>
-                    <div class="flex items-center">
-                        <span class="mr-1">📍</span> 
-                        {{ $meeting->venue }}
-                    </div>
+                    <div class="flex items-center"><span class="mr-1">📅</span> {{ \Carbon\Carbon::parse($meeting->date)->format('d M Y') }}</div>
+                    <div class="flex items-center"><span class="mr-1">📍</span> {{ $meeting->venue }}</div>
                 </div>
             </div>
 
@@ -47,63 +33,58 @@
                     <p class="font-bold text-lg">Kehadiran Direkodkan!</p>
                     <p class="text-sm mt-1">{{ session('success') }}</p>
                 </div>
-                <div class="text-center">
-                    <p class="text-xs text-gray-400">Anda boleh menutup halaman ini sekarang.</p>
-                </div>
             @elseif(session('error'))
                 <div class="bg-red-50 border border-red-200 text-red-700 p-4 mb-6 rounded-lg text-center">
                     <p class="font-bold">Ralat</p>
                     <p>{{ session('error') }}</p>
                 </div>
-            @else
-
+            @endif
+            
+            @if(!session('success'))
                 <form action="{{ route('attendance.store') }}" method="POST"> 
                     @csrf
                     <input type="hidden" name="meeting_id" value="{{ $meeting->id }}">
+                    <input type="hidden" name="attendance_type" id="attendance_type" value="staff">
 
                     <div class="grid grid-cols-2 gap-2 mb-6">
-                        <button type="button" onclick="switchTab('staff')" id="btn-staff" class="active-tab py-2 px-4 rounded-lg font-semibold text-sm border transition duration-200">
-                            Staf MTIB
-                        </button>
-                        <button type="button" onclick="switchTab('guest')" id="btn-guest" class="inactive-tab py-2 px-4 rounded-lg font-semibold text-sm border transition duration-200">
-                            Peserta Luar
-                        </button>
+                        <button type="button" onclick="switchTab('staff')" id="btn-staff" class="active-tab py-2 px-4 rounded-lg font-semibold text-sm border transition duration-200">Staf MTIB</button>
+                        <button type="button" onclick="switchTab('guest')" id="btn-guest" class="inactive-tab py-2 px-4 rounded-lg font-semibold text-sm border transition duration-200">Peserta Luar</button>
                     </div>
 
                     <div class="space-y-4">
                         
-                        <div>
-                            <label class="block text-gray-700 text-sm font-bold mb-2">
-                                <span id="label-email">Alamat E-mel Rasmi (Staf)</span>
-                            </label>
-                            <input type="email" name="email" required 
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#B6192E] focus:border-transparent outline-none transition" 
-                                placeholder="nama@mtib.gov.my">
-                            <p id="hint-staff" class="text-xs text-blue-600 mt-1 flex items-center">
-                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                Nama & Bahagian akan dikesan automatik dari sistem.
-                            </p>
+                        <div id="staff-section">
+                            <label class="block text-gray-700 text-sm font-bold mb-2">No. Pekerja</label>
+                            <input type="text" name="staff_id" id="input-staff-id" required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#B6192E] outline-none transition font-mono uppercase tracking-widest" 
+                                placeholder="Cth: 10245">
+                            <p class="text-xs text-blue-600 mt-1">Nama & Bahagian akan dikesan automatik.</p>
                         </div>
 
-                        <div id="guest-fields" class="hidden space-y-4 border-t pt-4 mt-2">
+                        <div id="guest-section" class="hidden space-y-4">
                             <div>
                                 <label class="block text-gray-700 text-sm font-bold mb-2">Nama Penuh</label>
-                                <input type="text" name="name" id="input-name"
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#B6192E] focus:border-transparent outline-none transition" 
-                                    placeholder="Contoh: Ali bin Abu">
+                                <input type="text" name="name" id="input-guest-name"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#B6192E] outline-none transition" 
+                                    placeholder="Ali bin Abu">
                             </div>
-                            
+                            <div>
+                                <label class="block text-gray-700 text-sm font-bold mb-2">Alamat E-mel</label>
+                                <input type="email" name="email" id="input-guest-email"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#B6192E] outline-none transition" 
+                                    placeholder="ali@gmail.com">
+                            </div>
                             <div>
                                 <label class="block text-gray-700 text-sm font-bold mb-2">Nama Syarikat / Agensi</label>
-                                <input type="text" name="company" 
-                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#B6192E] focus:border-transparent outline-none transition" 
-                                    placeholder="Contoh: Kementerian Perladangan">
+                                <input type="text" name="company_name" 
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#B6192E] outline-none transition" 
+                                    placeholder="Kementerian Perladangan">
                             </div>
                         </div>
 
                     </div>
 
-                    <button type="submit" class="w-full bg-[#B6192E] hover:bg-[#900000] text-white font-bold py-3 px-4 rounded-lg shadow-md hover:shadow-lg transition transform active:scale-95 mt-6 flex justify-center items-center">
+                    <button type="submit" class="w-full bg-[#B6192E] hover:bg-[#900000] text-white font-bold py-3 px-4 rounded-lg shadow-md mt-6 flex justify-center items-center">
                         <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                         Sahkan Kehadiran
                     </button>
@@ -112,7 +93,7 @@
         </div>
         
         <div class="bg-gray-50 p-4 text-center text-xs text-gray-400">
-            &copy; {{ date('Y') }} MTIB MMAS - Sistem Pengurusan Mesyuarat
+            &copy; {{ date('Y') }} MTIB MMAS
         </div>
     </div>
 
@@ -120,39 +101,37 @@
         function switchTab(type) {
             const btnStaff = document.getElementById('btn-staff');
             const btnGuest = document.getElementById('btn-guest');
-            const guestFields = document.getElementById('guest-fields');
-            const hintStaff = document.getElementById('hint-staff');
-            const labelEmail = document.getElementById('label-email');
-            const inputName = document.getElementById('input-name');
+            const staffSection = document.getElementById('staff-section');
+            const guestSection = document.getElementById('guest-section');
+            const attendanceType = document.getElementById('attendance_type');
+            
+            const inputStaffId = document.getElementById('input-staff-id');
+            const inputGuestName = document.getElementById('input-guest-name');
+            const inputGuestEmail = document.getElementById('input-guest-email');
 
             if (type === 'staff') {
-                // Aktifkan Tab Staf
-                btnStaff.classList.add('active-tab');
-                btnStaff.classList.remove('inactive-tab');
-                btnGuest.classList.add('inactive-tab');
-                btnGuest.classList.remove('active-tab');
-
-                // Sorok field guest
-                guestFields.classList.add('hidden');
-                hintStaff.classList.remove('hidden');
+                btnStaff.className = "active-tab py-2 px-4 rounded-lg font-semibold text-sm border transition duration-200";
+                btnGuest.className = "inactive-tab py-2 px-4 rounded-lg font-semibold text-sm border transition duration-200";
                 
-                // Ubah label
-                labelEmail.innerText = 'Alamat E-mel Rasmi (Staf)';
-                inputName.required = false; // 
+                staffSection.classList.remove('hidden');
+                guestSection.classList.add('hidden');
+                attendanceType.value = 'staff';
+
+                inputStaffId.required = true;
+                inputGuestName.required = false;
+                inputGuestEmail.required = false;
+
             } else {
-                // Aktifkan Tab Guest
-                btnGuest.classList.add('active-tab');
-                btnGuest.classList.remove('inactive-tab');
-                btnStaff.classList.add('inactive-tab');
-                btnStaff.classList.remove('active-tab');
+                btnGuest.className = "active-tab py-2 px-4 rounded-lg font-semibold text-sm border transition duration-200";
+                btnStaff.className = "inactive-tab py-2 px-4 rounded-lg font-semibold text-sm border transition duration-200";
 
-                // Tunjuk field guest
-                guestFields.classList.remove('hidden');
-                hintStaff.classList.add('hidden');
+                staffSection.classList.add('hidden');
+                guestSection.classList.remove('hidden');
+                attendanceType.value = 'guest';
 
-                // Ubah label
-                labelEmail.innerText = 'Alamat E-mel';
-                inputName.required = true; // 
+                inputStaffId.required = false;
+                inputGuestName.required = true;
+                inputGuestEmail.required = true;
             }
         }
     </script>

@@ -46,51 +46,48 @@ class AttendanceController extends Controller
     // 2. Proses Simpan Kehadiran (Logic Utama)
     public function store(Request $request)
     {
-        // A. Validasi Input
         $request->validate([
-            'email' => 'required|email',
-            'meeting_id' => 'required', 
-            
+            'meeting_id' => 'required',
         ]);
 
-        // B. Semak jika email ini milik Staf yang berdaftar dalam sistem
-        $registeredUser = User::where('email', $request->email)->first();
-
-        // C. Sediakan Objek Attendance
         $attendance = new Attendance();
-        
-        // Pastikan nama column ini sama dengan DB anda (meeting_id atau activity_id)
         $attendance->meeting_id = $request->meeting_id; 
-        
         $attendance->scan_time = now();
         $attendance->status = 'Hadir';
 
-        if ($registeredUser) {
-            // --- SENARIO 1: STAF MTIB (User Wujud) ---
-            // Sistem kesan email sama dengan database user, jadi kita link-kan ID.
+        // LOGIC BARU: Semak berdasarkan Tab yang dipilih (staff atau guest)
+        if ($request->attendance_type === 'staff') {
             
+            // --- SENARIO 1: STAF MTIB (Guna No Pekerja) ---
+            // Cari user berdasarkan column 'staff_id' dalam table users
+            // Pastikan nama column dalam database awak betul-betul 'staff_id'
+            $registeredUser = User::where('staff_id', $request->staff_id)->first();
+
+            // KALAU NO PEKERJA SALAH / TAK WUJUD
+            if (!$registeredUser) {
+                return redirect()->back()
+                        ->withInput()
+                        ->with('error', 'Maaf, No. Pekerja tidak dijumpai. Sila semak semula.');
+            }
+
+            // Kalau jumpa, simpan data
             $attendance->user_id = $registeredUser->id; 
             $attendance->participant_name = $registeredUser->name; 
             $attendance->participant_email = $registeredUser->email;
             $attendance->participant_type = 'Staf MTIB';
-            
-            // Pastikan column 'department' atau 'division' wujud dalam table users & attendance
             $attendance->department = $registeredUser->department ?? $registeredUser->division ?? null; 
+            $attendance->company_name = 'MTIB';
 
         } else {
             // --- SENARIO 2: PESERTA LUAR (Guest) ---
-            // User tiada dalam sistem, simpan input manual dari borang.
             
-            $attendance->user_id = null; // Set null sebab bukan user sistem
-            $attendance->participant_name = $request->name; // Ambil nama yang ditaip di form
+            $attendance->user_id = null;
+            $attendance->participant_name = $request->name;
             $attendance->participant_email = $request->email;
             $attendance->participant_type = 'Peserta Luar';
-            
-            // Simpan nama syarikat jika ada input
-            $attendance->company_name = $request->company ?? null; 
+            $attendance->company_name = $request->company_name ?? null; 
         }
 
-        // D. Simpan ke Database
         $attendance->save();
 
         return redirect()->back()->with('success', 'Kehadiran berjaya direkodkan! Terima kasih.');
