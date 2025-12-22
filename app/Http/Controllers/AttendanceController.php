@@ -18,29 +18,42 @@ class AttendanceController extends Controller
                           ->firstOrFail();
 
         // 2. Semak Validasi URL (Untuk QR Dinamik)
-        // Jika URL ini sudah expired (lebih 10 minit) atau diubah suai, ia akan gagal.
-        if (! $request->hasValidSignature()) {
-            abort(403, 'Kod QR ini telah luput atau tidak sah. Sila imbas Kod QR terkini di skrin penganjur.');
-        }
+    if (! $request->hasValidSignature()) {
+        
+        // --- MULA KOD DEBUG (Hanya sementara) ---
+        // Kita paksa dia tunjuk kenapa dia gagal validasi
+        dd([
+            'STATUS' => 'GAGAL: Signature Invalid',
+            '1. Apa URL yang Laravel nampak?' => $request->url(),
+            '2. Apa URL Penuh (termasuk ?signature=...)?' => $request->fullUrl(),
+            '3. Adakah Laravel kesan HTTPS?' => $request->secure() ? 'YA (Betul)' : 'TIDAK (Ini Masalahnya!)',
+            '4. Signature yang dihantar' => $request->query('signature'),
+            '5. Header X-Forwarded-Proto' => $request->header('X-Forwarded-Proto'), // Render hantar signal https kat sini
+        ]);
+        // --- TAMAT KOD DEBUG ---
 
-        // 3. Semak Waktu Mesyuarat (Aktif 15 minit sebelum & 15 minit selepas)
-        $now = Carbon::now();
-        $startTime = Carbon::parse($meeting->date . ' ' . $meeting->start_time)->subMinutes(15);
-        $endTime = Carbon::parse($meeting->date . ' ' . $meeting->end_time)->addMinutes(15);
-
-        // Jika masa belum sampai
-        if ($now->lessThan($startTime)) {
-            abort(403, 'Pendaftaran kehadiran belum dibuka. Sila tunggu 15 minit sebelum aktiviti bermula.');
-        }
-
-        // Jika masa dah tamat (Kecuali status disetkan 'active' manual oleh penganjur)
-        if ($now->greaterThan($endTime) && $meeting->status !== 'active') {
-            abort(403, 'Masa pendaftaran kehadiran telah tamat. Sila minta penganjur aktifkan semula kod QR.');
-        }
-
-        // Jika Lulus, tunjuk borang
-        return view('attendance.form', compact('meeting'));
+        // Saya komenkan baris error ini supaya anda boleh nampak data di atas
+        // abort(403, 'Kod QR ini telah luput atau tidak sah. Sila imbas Kod QR terkini di skrin penganjur.');
     }
+
+    // 3. Semak Waktu Mesyuarat (Aktif 15 minit sebelum & 15 minit selepas)
+    $now = Carbon::now();
+    $startTime = Carbon::parse($meeting->date . ' ' . $meeting->start_time)->subMinutes(15);
+    $endTime = Carbon::parse($meeting->date . ' ' . $meeting->end_time)->addMinutes(15);
+
+    // Jika masa belum sampai
+    if ($now->lessThan($startTime)) {
+        abort(403, 'Pendaftaran kehadiran belum dibuka. Sila tunggu 15 minit sebelum aktiviti bermula.');
+    }
+
+    // Jika masa dah tamat (Kecuali status disetkan 'active' manual oleh penganjur)
+    if ($now->greaterThan($endTime) && $meeting->status !== 'active') {
+        abort(403, 'Masa pendaftaran kehadiran telah tamat. Sila minta penganjur aktifkan semula kod QR.');
+    }
+
+    // Jika Lulus, tunjuk borang
+    return view('attendance.form', compact('meeting'));
+}
 
     // 2. Proses Simpan Kehadiran
     public function store(Request $request, Meeting $meeting)
