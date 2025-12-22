@@ -4,97 +4,94 @@ namespace App\Http\Controllers;
 
 use App\Models\Meeting;
 use App\Models\Attendance;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class AttendanceController extends Controller
 {
+    // 1. Paparan Borang Imbasan (Scan)
     public function scan(Request $request, $meeting_id, $code)
     {
-        // 1. Cari Meeting
+        // Cari Meeting berdasarkan ID dan QR string
         $meeting = Meeting::where('id', $meeting_id)
                           ->where('qr_code_string', $code)
                           ->firstOrFail();
 
-        // 2. Semak Validasi URL (Untuk QR Dinamik)
-    if (! $request->hasValidSignature()) {
-        
-        // --- MULA KOD DEBUG (Hanya sementara) ---
-        // Kita paksa dia tunjuk kenapa dia gagal validasi
-        dd([
-            'STATUS' => 'GAGAL: Signature Invalid',
-            '1. Apa URL yang Laravel nampak?' => $request->url(),
-            '2. Apa URL Penuh (termasuk ?signature=...)?' => $request->fullUrl(),
-            '3. Adakah Laravel kesan HTTPS?' => $request->secure() ? 'YA (Betul)' : 'TIDAK (Ini Masalahnya!)',
-            '4. Signature yang dihantar' => $request->query('signature'),
-            '5. Header X-Forwarded-Proto' => $request->header('X-Forwarded-Proto'), // Render hantar signal https kat sini
-        ]);
-        // --- TAMAT KOD DEBUG ---
+        // Semak Validasi URL (Untuk keselamatan QR Dinamik)
+        if (! $request->hasValidSignature()) {
+            abort(403, 'Kod QR ini telah luput atau tidak sah. Sila imbas Kod QR terkini di skrin penganjur.');
+        }
 
-        // Saya komenkan baris error ini supaya anda boleh nampak data di atas
-        // abort(403, 'Kod QR ini telah luput atau tidak sah. Sila imbas Kod QR terkini di skrin penganjur.');
+        // Semak Waktu Mesyuarat (Aktif 15 minit sebelum & 15 minit selepas)
+        $now = Carbon::now();
+        $startTime = Carbon::parse($meeting->date . ' ' . $meeting->start_time)->subMinutes(15);
+        $endTime = Carbon::parse($meeting->date . ' ' . $meeting->end_time)->addMinutes(15);
+
+        // Jika masa belum sampai
+        if ($now->lessThan($startTime)) {
+            abort(403, 'Pendaftaran kehadiran belum dibuka.');
+        }
+
+        // Jika masa dah tamat (Kecuali status disetkan 'active' manual oleh penganjur)
+        if ($now->greaterThan($endTime) && $meeting->status !== 'active') {
+            abort(403, 'Masa pendaftaran kehadiran telah tamat. Sila minta penganjur aktifkan semula kod QR.');
+        }
+
+        // Jika Lulus, tunjuk borang kehadiran
+        return view('attendance.form', compact('meeting'));
     }
 
-    // 3. Semak Waktu Mesyuarat (Aktif 15 minit sebelum & 15 minit selepas)
-    $now = Carbon::now();
-    $startTime = Carbon::parse($meeting->date . ' ' . $meeting->start_time)->subMinutes(15);
-    $endTime = Carbon::parse($meeting->date . ' ' . $meeting->end_time)->addMinutes(15);
-
-    // Jika masa belum sampai
-    if ($now->lessThan($startTime)) {
-        abort(403, 'Pendaftaran kehadiran belum dibuka. Sila tunggu 15 minit sebelum aktiviti bermula.');
-    }
-
-    // Jika masa dah tamat (Kecuali status disetkan 'active' manual oleh penganjur)
-    if ($now->greaterThan($endTime) && $meeting->status !== 'active') {
-        abort(403, 'Masa pendaftaran kehadiran telah tamat. Sila minta penganjur aktifkan semula kod QR.');
-    }
-
-    // Jika Lulus, tunjuk borang
-    return view('attendance.form', compact('meeting'));
-}
-
-    // 2. Proses Simpan Kehadiran
-    public function store(Request $request, Meeting $meeting)
+    // 2. Proses Simpan Kehadiran (Logic Utama)
+    public function store(Request $request)
     {
-        // Validasi
+        // A. Validasi Input
         $request->validate([
-            'type' => 'required|in:staff,guest',
-            'guest_name' => 'required_if:type,guest',
-            'guest_email' => 'required_if:type,guest|nullable|email',
+            'email' => 'required|email',
+            'meeting_id' => 'required', 
+            
         ]);
 
-        // Data untuk disimpan
-        $data = [
-            'meeting_id' => $meeting->id,
-            'scanned_at' => now(),
-            'status' => 'present',
-        ];
+        // B. Semak jika email ini milik Staf yang berdaftar dalam sistem
+        $registeredUser = User::where('email', $request->email)->first();
 
-        if ($request->type == 'staff') {
-            // Jika Staf (Pastikan Login)
-            if (!Auth::check()) {
-                return redirect()->route('login');
-            }
-            $data['user_id'] = Auth::id();
+        // C. Sediakan Objek Attendance
+        $attendance = new Attendance();
+        
+        // Pastikan nama column ini sama dengan DB anda (meeting_id atau activity_id)
+        $attendance->meeting_id = $request->meeting_id; 
+        
+        $attendance->scan_time = now();
+        $attendance->status = 'Hadir';
+
+        if ($registeredUser) {
+            // --- SENARIO 1: STAF MTIB (User Wujud) ---
+            // Sistem kesan email sama dengan database user, jadi kita link-kan ID.
             
-            // Cek Duplikasi (Tak nak scan 2 kali)
-            $exists = Attendance::where('meeting_id', $meeting->id)->where('user_id', Auth::id())->exists();
+            $attendance->user_id = $registeredUser->id; 
+            $attendance->participant_name = $registeredUser->name; 
+            $attendance->participant_email = $registeredUser->email;
+            $attendance->participant_type = 'Staf MTIB';
+            
+            // Pastikan column 'department' atau 'division' wujud dalam table users & attendance
+            $attendance->department = $registeredUser->department ?? $registeredUser->division ?? null; 
+
         } else {
-            // Jika Tetamu Luar
-            $data['guest_email'] = $request->guest_email;
+            // --- SENARIO 2: PESERTA LUAR (Guest) ---
+            // User tiada dalam sistem, simpan input manual dari borang.
             
-            // Cek Duplikasi Email
-            $exists = Attendance::where('meeting_id', $meeting->id)->where('guest_email', $request->guest_email)->exists();
+            $attendance->user_id = null; // Set null sebab bukan user sistem
+            $attendance->participant_name = $request->name; // Ambil nama yang ditaip di form
+            $attendance->participant_email = $request->email;
+            $attendance->participant_type = 'Peserta Luar';
+            
+            // Simpan nama syarikat jika ada input
+            $attendance->company_name = $request->company ?? null; 
         }
 
-        if ($exists) {
-            return redirect()->back()->with('error', 'Anda telah mendaftar kehadiran sebelum ini.');
-        }
-
-        // Simpan!
-        Attendance::create($data);
+        // D. Simpan ke Database
+        $attendance->save();
 
         return redirect()->back()->with('success', 'Kehadiran berjaya direkodkan! Terima kasih.');
     }
@@ -102,15 +99,16 @@ class AttendanceController extends Controller
     // 3. Senarai Rekod Kehadiran Saya (Berdasarkan Jemputan)
     public function history()
     {
-        // 1. Ambil semua jemputan untuk user ini
+        // Ambil semua jemputan untuk user yang sedang login
         $histories = \App\Models\Invitation::where('user_id', Auth::id())
                         ->with(['meeting', 'meeting.attendances' => function($q) {
-                            // Ambil data kehadiran user ini untuk meeting tersebut (jika ada)
+                            // Ambil data kehadiran user ini untuk meeting tersebut
                             $q->where('user_id', Auth::id());
                         }])
                         ->get()
                         ->sortByDesc(function($invitation) {
-                            return $invitation->meeting->date;
+                            // Susun ikut tarikh terkini
+                            return $invitation->meeting->date ?? ''; 
                         });
 
         return view('attendance.history', compact('histories'));
