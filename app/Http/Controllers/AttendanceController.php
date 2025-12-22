@@ -52,24 +52,22 @@ class AttendanceController extends Controller
 
         $attendance = new Attendance();
         $attendance->meeting_id = $request->meeting_id; 
-        $attendance->scan_time = now();
+        $attendance->scanned_at = now(); 
         $attendance->status = 'Hadir';
 
-        // LOGIC BARU: Semak berdasarkan Tab yang dipilih (staff atau guest)
+        // emak berdasarkan Tab yang dipilih (staff atau guest)
         if ($request->attendance_type === 'staff') {
             
-            // --- SENARIO 1: STAF MTIB (Guna No Pekerja) ---
-            
+            // --- SENARIO 1: STAF MTIB ---
+            // Cari user berdasarkan column 'staff_number'
             $registeredUser = User::where('staff_number', $request->staff_id)->first();
 
-            // KALAU NO PEKERJA SALAH / TAK WUJUD
             if (!$registeredUser) {
                 return redirect()->back()
                         ->withInput()
                         ->with('error', 'Maaf, No. Pekerja tidak dijumpai. Sila semak semula.');
             }
 
-            // Kalau jumpa, simpan data
             $attendance->user_id = $registeredUser->id; 
             $attendance->participant_name = $registeredUser->name; 
             $attendance->participant_email = $registeredUser->email;
@@ -78,8 +76,7 @@ class AttendanceController extends Controller
             $attendance->company_name = 'MTIB';
 
         } else {
-            // --- SENARIO 2: PESERTA LUAR (Guest) ---
-            
+            // --- SENARIO 2: PESERTA LUAR ---
             $attendance->user_id = null;
             $attendance->participant_name = $request->name;
             $attendance->participant_email = $request->email;
