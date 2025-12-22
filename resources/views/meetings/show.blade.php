@@ -98,12 +98,14 @@
                     <p class="text-sm text-gray-500 mb-6 print:hidden">{{ __('messages.scan_instruction') }}</p>
                     
                     <div class="p-4 bg-white border-2 border-gray-200 rounded-lg inline-block print:border-4 print:border-black print:p-2">
-                        {!! SimpleSoftwareIO\QrCode\Facades\QrCode::size(300)->generate(route('attendance.scan', ['meeting' => $meeting->id, 'code' => $meeting->qr_code_string])) !!}
+                        {{-- PEMBETULAN: Guna URL::signedRoute untuk jana QR yang sah --}}
+                        {!! SimpleSoftwareIO\QrCode\Facades\QrCode::size(300)->generate(URL::signedRoute('attendance.scan', ['meeting' => $meeting->id, 'code' => $meeting->qr_code_string])) !!}
                     </div>
 
                     <div class="mt-6 no-print">
                         <p class="text-xs text-gray-400 mb-2">{{ __('messages.testing_only') }}</p>
-                        <a href="{{ route('attendance.scan', ['meeting' => $meeting->id, 'code' => $meeting->qr_code_string]) }}" target="_blank" class="text-blue-600 underline text-sm font-bold hover:text-blue-800">
+                        {{-- PEMBETULAN: Guna URL::signedRoute untuk link simulasi --}}
+                        <a href="{{ URL::signedRoute('attendance.scan', ['meeting' => $meeting->id, 'code' => $meeting->qr_code_string]) }}" target="_blank" class="text-blue-600 underline text-sm font-bold hover:text-blue-800">
                             {{ __('messages.simulation_link') }}
                         </a>
                     </div>
