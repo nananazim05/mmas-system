@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Barryvdh\DomPDF\Facade\Pdf; // <--- Panggil library PDF
-use App\Models\Invitation; // <--- Panggil model Invitation
+use Barryvdh\DomPDF\Facade\Pdf; 
+use App\Models\Invitation; 
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;

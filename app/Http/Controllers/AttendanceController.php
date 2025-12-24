@@ -52,14 +52,16 @@ class AttendanceController extends Controller
 
         $attendance = new Attendance();
         $attendance->meeting_id = $request->meeting_id; 
+        
+        // Guna 'scanned_at' 
         $attendance->scanned_at = now(); 
-        $attendance->status = 'Hadir';
+        
+        // Status 'Hadir'
+        $attendance->status = 'present'; 
 
-        // emak berdasarkan Tab yang dipilih (staff atau guest)
         if ($request->attendance_type === 'staff') {
             
             // --- SENARIO 1: STAF MTIB ---
-            // Cari user berdasarkan column 'staff_number'
             $registeredUser = User::where('staff_number', $request->staff_id)->first();
 
             if (!$registeredUser) {
@@ -69,17 +71,30 @@ class AttendanceController extends Controller
             }
 
             $attendance->user_id = $registeredUser->id; 
+            
+            // Simpan Nama ke column baru
             $attendance->participant_name = $registeredUser->name; 
-            $attendance->participant_email = $registeredUser->email;
+            
+            // Simpan Email ke column 'guest_email' (kita tumpang column ni)
+            $attendance->guest_email = $registeredUser->email; 
+            
             $attendance->participant_type = 'Staf MTIB';
-            $attendance->department = $registeredUser->department ?? $registeredUser->division ?? null; 
+            
+            // Gabung division & section
+            $attendance->department = $registeredUser->division ?? $registeredUser->section ?? null; 
+            
             $attendance->company_name = 'MTIB';
 
         } else {
             // --- SENARIO 2: PESERTA LUAR ---
             $attendance->user_id = null;
+            
+            // Simpan Nama Manual
             $attendance->participant_name = $request->name;
-            $attendance->participant_email = $request->email;
+            
+            // Simpan Email Manual
+            $attendance->guest_email = $request->email;
+            
             $attendance->participant_type = 'Peserta Luar';
             $attendance->company_name = $request->company_name ?? null; 
         }
