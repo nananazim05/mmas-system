@@ -65,7 +65,6 @@
                             <input type="text" 
                                    name="organizer" 
                                    class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-[#B6192E] focus:border-[#B6192E]" 
-                                   placeholder="Contoh: Unit Integriti / Kelab Sukan"
                                    required>
                         </div>
                     </div>
@@ -78,33 +77,40 @@
                             <div>
                                 <label class="block text-gray-700 text-sm font-bold mb-2">{{ __('messages.select_staff') }}</label>
                                 
-                                <div class="flex flex-col gap-2 mb-2 bg-gray-100 p-2 rounded border border-gray-200">
-                                    <input type="text" id="staffSearch" placeholder="Cari nama staf..." 
-                                           class="w-full px-3 py-1 border rounded text-sm focus:outline-none focus:border-[#B6192E]">
+                                <div class="border border-gray-300 rounded-lg bg-white overflow-hidden shadow-sm">
                                     
-                                    <div class="flex items-center mt-1">
-                                        <input type="checkbox" id="selectAllStaff" class="rounded text-[#B6192E] focus:ring-[#B6192E] h-4 w-4">
-                                        <label for="selectAllStaff" class="ml-2 text-xs font-bold text-gray-600 cursor-pointer uppercase">
-                                            Pilih Semua / Select All
-                                        </label>
-                                    </div>
-                                </div>
-
-                                <div id="staffListContainer" class="h-48 overflow-y-auto border rounded-lg p-3 bg-gray-50 space-y-2">
-                                    @foreach($users as $user)
-                                        <div class="staff-item flex items-start">
-                                            <input type="checkbox" 
-                                                   name="invited_staff[]" 
-                                                   value="{{ $user->id }}" 
-                                                   class="staff-checkbox mt-1 rounded text-[#B6192E] focus:ring-[#B6192E]">
-                                            <label class="ml-2 text-sm text-gray-700 cursor-pointer">
-                                                <span class="staff-name font-semibold">{{ $user->name }}</span>
-                                                <span class="text-xs text-gray-500 block">({{ $user->section ?? 'Staf MTIB' }})</span>
+                                    <div class="p-3 bg-gray-50 border-b border-gray-200">
+                                        <div class="relative mb-2">
+                                            <input type="text" id="staffSearch" placeholder="Cari nama staf..." 
+                                                   class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-[#B6192E] focus:border-[#B6192E]">
+                                        </div>
+                                        <div class="flex items-center">
+                                            <input type="checkbox" id="selectAllStaff" class="rounded text-[#B6192E] focus:ring-[#B6192E] h-4 w-4 cursor-pointer">
+                                            <label for="selectAllStaff" class="ml-2 text-xs font-bold text-gray-600 cursor-pointer uppercase hover:text-[#B6192E] transition">
+                                                Pilih Semua / Select All
                                             </label>
                                         </div>
-                                    @endforeach
+                                    </div>
+
+                                    <div id="staffListContainer" class="h-60 overflow-y-auto p-2 space-y-1 bg-white">
+                                        @foreach($users as $user)
+                                            <div class="staff-item flex items-start hover:bg-gray-50 p-2 rounded transition border-b border-gray-50 last:border-0">
+                                                <input type="checkbox" 
+                                                       name="invited_staff[]" 
+                                                       value="{{ $user->id }}" 
+                                                       class="staff-checkbox mt-1 rounded text-[#B6192E] focus:ring-[#B6192E] cursor-pointer">
+                                                
+                                                <label class="ml-3 text-sm text-gray-700 cursor-pointer w-full select-none">
+                                                    <span class="staff-name font-semibold text-gray-800">{{ $user->name }}</span>
+                                                    <span class="text-xs text-gray-500 block">
+                                                        {{ $user->section ?? $user->division ?? 'Staf MTIB' }}
+                                                    </span>
+                                                </label>
+                                            </div>
+                                        @endforeach
+                                    </div>
                                 </div>
-                                <p class="text-xs text-gray-500 mt-1">{{ __('messages.staff_help') }}</p>
+                                <p class="text-xs text-gray-500 mt-1 italic">{{ __('messages.staff_help') }}</p>
                             </div>
 
                             <div>
@@ -135,9 +141,10 @@
             const form = document.getElementById('createActivityForm'); 
             const backupKey = 'mmas_create_activity_backup';
 
-            // 1. AUTO SAVE
+            // --- 1. AUTO SAVE FUNCTION ---
             function saveFormData() {
                 const formData = {};
+                // Simpan text/select inputs
                 form.querySelectorAll('input:not([type="checkbox"]), textarea, select').forEach(el => {
                     if (el.name) formData[el.name] = el.value;
                 });
@@ -146,6 +153,7 @@
                     checkedStaff.push(el.value);
                 });
                 formData['invited_staff'] = checkedStaff;
+                
                 localStorage.setItem(backupKey, JSON.stringify(formData));
             }
 
@@ -154,46 +162,53 @@
                 if (!savedData) return;
                 try {
                     const formData = JSON.parse(savedData);
+                    // Load text/select inputs
                     for (const [name, value] of Object.entries(formData)) {
                         if (name === 'invited_staff') continue; 
                         const el = form.querySelector(`[name="${name}"]`);
                         if (el) el.value = value;
                     }
+                    // Load checkboxes
                     if (formData.invited_staff && Array.isArray(formData.invited_staff)) {
                         formData.invited_staff.forEach(id => {
                             const checkbox = document.querySelector(`input[value="${id}"]`);
                             if (checkbox) checkbox.checked = true;
                         });
                     }
-                } catch (e) { console.error(e); }
+                } catch (e) { console.error("Error loading backup:", e); }
             }
 
+            // Listeners untuk Auto-Save
             form.addEventListener('input', saveFormData);
             form.addEventListener('change', saveFormData);
-            form.addEventListener('submit', () => localStorage.removeItem(backupKey));
-            loadFormData();
+            form.addEventListener('submit', () => localStorage.removeItem(backupKey)); // Clear lepas submit
+            loadFormData(); // Run bila page load
 
-            // 2. LIVE SEARCH & SELECT ALL
+            // --- 2. LIVE SEARCH & SELECT ALL ---
             const searchInput = document.getElementById('staffSearch');
             const selectAllCheckbox = document.getElementById('selectAllStaff');
             const staffItems = document.querySelectorAll('.staff-item');
 
+            // Logic Cari Nama
             searchInput.addEventListener('keyup', function(e) {
                 const term = e.target.value.toLowerCase();
                 staffItems.forEach(item => {
                     const name = item.querySelector('.staff-name').innerText.toLowerCase();
+                    // Guna style.display 'flex' sebab asal dia flex
                     item.style.display = name.includes(term) ? 'flex' : 'none';
                 });
             });
 
+            // Logic Select All (Hanya check yang nampak/visible)
             selectAllCheckbox.addEventListener('change', function(e) {
                 const isChecked = e.target.checked;
                 staffItems.forEach(item => {
+                    // Check hanya jika item tidak disembunyikan (display != none)
                     if (item.style.display !== 'none') {
                         item.querySelector('.staff-checkbox').checked = isChecked;
                     }
                 });
-                saveFormData();
+                saveFormData(); 
             });
         });
     </script>
