@@ -92,7 +92,7 @@
                                         </div>
                                     </div>
 
-                                    <div id="staffListContainer" class="h-60 overflow-y-auto p-2 space-y-1 bg-white">
+                                    <div id="staffListContainer" class="h-40 overflow-y-auto p-2 space-y-1 bg-white">
                                         @foreach($users as $user)
                                             <div class="staff-item flex items-start hover:bg-gray-50 p-2 rounded transition border-b border-gray-50 last:border-0">
                                                 <input type="checkbox" 
