@@ -98,7 +98,7 @@ class MeetingController extends Controller
             'end_time' => 'required|after:start_time',
             'venue' => 'required|string',
             'activity_type' => 'required|string',
-            'organizer_id' => 'required|exists:users,id',
+            'organizer' => 'required|string|max:255',
             'invited_staff' => 'required_without:guest_emails',
             'guest_emails' => 'required_without:invited_staff',
         ], [
@@ -108,7 +108,7 @@ class MeetingController extends Controller
         ]);
 
         $meeting = Meeting::create([
-            'organizer_id' => $request->organizer_id,
+            'organizer' => $request->organizer,
             'title' => $request->title,
             'date' => $request->date,
             'start_time' => $request->start_time,

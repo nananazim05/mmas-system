@@ -63,7 +63,7 @@ class StaffController extends Controller
             'division' => $request->division,
             'grade' => $request->grade,
             'role' => $request->role,
-            'password' => Hash::make('password'), // Password default: 'password'
+            'password' => Hash::make('password'), // Password default
         ]);
 
         return redirect()->route('staff.index')->with('success', 'Staf berjaya didaftarkan.');
@@ -83,7 +83,7 @@ class StaffController extends Controller
 
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'unique:users,email,'.$user->id], // Abaikan diri sendiri
+            'email' => ['required', 'email', 'unique:users,email,'.$user->id],
             'ic_number' => ['required', 'string', 'unique:users,ic_number,'.$user->id],
             'staff_number' => ['required', 'string', 'unique:users,staff_number,'.$user->id],
             'section' => ['required', 'string'],
@@ -92,7 +92,7 @@ class StaffController extends Controller
             'role' => ['required', 'in:admin,staff'],
         ]);
 
-        $user->update($request->except('password')); // Jangan update password di sini
+        $user->update($request->except('password')); 
 
         return redirect()->route('staff.index')->with('success', 'Maklumat staf berjaya dikemaskini.');
     }

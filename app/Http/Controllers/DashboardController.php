@@ -51,7 +51,7 @@ class DashboardController extends Controller
                                                 })->count();
 
             // Senarai: Hanya meeting yang dia DIJEMPUT dan belum lepas
-            // (Kod ini yang kita betulkan supaya dia tapis)
+           
             $aktivitiAkanDatang = Meeting::whereDate('date', '>=', now())
                                         ->whereHas('invitations', function($q) use ($user) {
                                             $q->where('user_id', $user->id);

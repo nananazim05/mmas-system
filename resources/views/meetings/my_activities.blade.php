@@ -135,7 +135,7 @@
             var rows = document.querySelectorAll('#activityTableBody tr');
             
             rows.forEach(function(row) {
-                // Jangan sorok baris "Tiada Rekod" jika ia wujud
+                
                 if (row.id === 'noRecordsRow') return;
 
                 var text = row.innerText.toLowerCase();

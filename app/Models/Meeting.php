@@ -10,7 +10,7 @@ class Meeting extends Model
     use HasFactory;
 
     protected $fillable = [
-        'organizer_id',
+        'organizer',
         'title',
         'date',
         'start_time',

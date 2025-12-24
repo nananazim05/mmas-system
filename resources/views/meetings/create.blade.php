@@ -21,7 +21,7 @@
             <div class="p-8">
                 <h3 class="text-xl font-bold text-gray-800 mb-6 border-b pb-2">{{ __('messages.activity_info') }}</h3>
 
-                <form action="{{ route('activities.store') }}" method="POST">
+                <form action="{{ route('activities.store') }}" method="POST" id="createActivityForm">
                     @csrf
 
                     <div class="mb-6">
@@ -62,13 +62,11 @@
 
                         <div>
                             <label class="block text-gray-700 text-sm font-bold mb-2">{{ __('messages.organizer_label') }}</label>
-                            <select name="organizer_id" class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-[#B6192E] focus:border-[#B6192E]">
-                                @foreach($users as $user)
-                                    <option value="{{ $user->id }}" {{ Auth::id() == $user->id ? 'selected' : '' }}>
-                                        {{ $user->name }}
-                                    </option>
-                                @endforeach
-                            </select>
+                            <input type="text" 
+                                   name="organizer" 
+                                   class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-[#B6192E] focus:border-[#B6192E]" 
+                                   placeholder="Contoh: Unit Integriti / Kelab Sukan"
+                                   required>
                         </div>
                     </div>
 
@@ -76,13 +74,33 @@
                         <h4 class="text-lg font-bold text-gray-700 mb-4">{{ __('messages.invitation_section') }}</h4>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            
                             <div>
                                 <label class="block text-gray-700 text-sm font-bold mb-2">{{ __('messages.select_staff') }}</label>
-                                <div class="h-40 overflow-y-auto border rounded-lg p-3 bg-gray-50">
+                                
+                                <div class="flex flex-col gap-2 mb-2 bg-gray-100 p-2 rounded border border-gray-200">
+                                    <input type="text" id="staffSearch" placeholder="Cari nama staf..." 
+                                           class="w-full px-3 py-1 border rounded text-sm focus:outline-none focus:border-[#B6192E]">
+                                    
+                                    <div class="flex items-center mt-1">
+                                        <input type="checkbox" id="selectAllStaff" class="rounded text-[#B6192E] focus:ring-[#B6192E] h-4 w-4">
+                                        <label for="selectAllStaff" class="ml-2 text-xs font-bold text-gray-600 cursor-pointer uppercase">
+                                            Pilih Semua / Select All
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div id="staffListContainer" class="h-48 overflow-y-auto border rounded-lg p-3 bg-gray-50 space-y-2">
                                     @foreach($users as $user)
-                                        <div class="flex items-center mb-2">
-                                            <input type="checkbox" name="invited_staff[]" value="{{ $user->id }}" class="rounded text-[#B6192E] focus:ring-[#B6192E]">
-                                            <span class="ml-2 text-sm text-gray-700">{{ $user->name }} ({{ $user->section }})</span>
+                                        <div class="staff-item flex items-start">
+                                            <input type="checkbox" 
+                                                   name="invited_staff[]" 
+                                                   value="{{ $user->id }}" 
+                                                   class="staff-checkbox mt-1 rounded text-[#B6192E] focus:ring-[#B6192E]">
+                                            <label class="ml-2 text-sm text-gray-700 cursor-pointer">
+                                                <span class="staff-name font-semibold">{{ $user->name }}</span>
+                                                <span class="text-xs text-gray-500 block">({{ $user->section ?? 'Staf MTIB' }})</span>
+                                            </label>
                                         </div>
                                     @endforeach
                                 </div>
@@ -110,4 +128,73 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            
+            const form = document.getElementById('createActivityForm'); 
+            const backupKey = 'mmas_create_activity_backup';
+
+            // 1. AUTO SAVE
+            function saveFormData() {
+                const formData = {};
+                form.querySelectorAll('input:not([type="checkbox"]), textarea, select').forEach(el => {
+                    if (el.name) formData[el.name] = el.value;
+                });
+                const checkedStaff = [];
+                form.querySelectorAll('input[name="invited_staff[]"]:checked').forEach(el => {
+                    checkedStaff.push(el.value);
+                });
+                formData['invited_staff'] = checkedStaff;
+                localStorage.setItem(backupKey, JSON.stringify(formData));
+            }
+
+            function loadFormData() {
+                const savedData = localStorage.getItem(backupKey);
+                if (!savedData) return;
+                try {
+                    const formData = JSON.parse(savedData);
+                    for (const [name, value] of Object.entries(formData)) {
+                        if (name === 'invited_staff') continue; 
+                        const el = form.querySelector(`[name="${name}"]`);
+                        if (el) el.value = value;
+                    }
+                    if (formData.invited_staff && Array.isArray(formData.invited_staff)) {
+                        formData.invited_staff.forEach(id => {
+                            const checkbox = document.querySelector(`input[value="${id}"]`);
+                            if (checkbox) checkbox.checked = true;
+                        });
+                    }
+                } catch (e) { console.error(e); }
+            }
+
+            form.addEventListener('input', saveFormData);
+            form.addEventListener('change', saveFormData);
+            form.addEventListener('submit', () => localStorage.removeItem(backupKey));
+            loadFormData();
+
+            // 2. LIVE SEARCH & SELECT ALL
+            const searchInput = document.getElementById('staffSearch');
+            const selectAllCheckbox = document.getElementById('selectAllStaff');
+            const staffItems = document.querySelectorAll('.staff-item');
+
+            searchInput.addEventListener('keyup', function(e) {
+                const term = e.target.value.toLowerCase();
+                staffItems.forEach(item => {
+                    const name = item.querySelector('.staff-name').innerText.toLowerCase();
+                    item.style.display = name.includes(term) ? 'flex' : 'none';
+                });
+            });
+
+            selectAllCheckbox.addEventListener('change', function(e) {
+                const isChecked = e.target.checked;
+                staffItems.forEach(item => {
+                    if (item.style.display !== 'none') {
+                        item.querySelector('.staff-checkbox').checked = isChecked;
+                    }
+                });
+                saveFormData();
+            });
+        });
+    </script>
 </x-app-layout>

@@ -70,7 +70,7 @@ class AttendanceController extends Controller
                 return redirect()->back()->withInput()->with('error', 'Maaf, No. Pekerja tidak dijumpai.');
             }
 
-            // 2. [BARU] Semak Duplicate (Guna User ID)
+            // 2. Semak Duplicate (Guna User ID)
             $alreadyRegistered = Attendance::where('meeting_id', $request->meeting_id)
                                            ->where('user_id', $registeredUser->id)
                                            ->exists();
