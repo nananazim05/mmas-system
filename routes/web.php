@@ -8,6 +8,7 @@ use App\Http\Controllers\AttendanceController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 
 
 // 1. Lencongan Utama
@@ -57,7 +58,7 @@ Route::middleware('auth')->group(function () {
 });
 
 // 4. ROUTE KEHADIRAN (PUBLIC - Boleh diakses Guest & Staf tanpa login session browser)
-// Nota: Scan & Store diletak di luar 'auth' middleware supaya 'Peserta Luar' boleh akses.
+// Scan & Store diletak di luar 'auth' middleware supaya 'Peserta Luar' boleh akses.
 
 // Route untuk scan QR
 Route::get('/attendance/scan/{meeting}/{code}', [AttendanceController::class, 'scan'])->name('attendance.scan');
@@ -79,6 +80,16 @@ Route::get('/lang/{locale}', function ($locale) {
 Route::get('/run-migration', function () {
     Artisan::call('migrate', ['--force' => true]);
     return 'Migration berjaya dijalankan! Sila semak form aktiviti sekarang.';
+});
+
+Route::get('/fix-users-sequence', function () {
+    try {
+        DB::statement("SELECT setval('users_id_seq', (SELECT MAX(id) FROM users));");
+        
+        return "Berjaya! Sequence ID users telah dibetulkan. Sila cuba tambah staf semula.";
+    } catch (\Exception $e) {
+        return "Error: " . $e->getMessage();
+    }
 });
 
 require __DIR__.'/auth.php';

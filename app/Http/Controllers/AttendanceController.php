@@ -50,53 +50,69 @@ class AttendanceController extends Controller
             'meeting_id' => 'required',
         ]);
 
+        // --- 1. SETUP AWAL ---
         $attendance = new Attendance();
-        $attendance->meeting_id = $request->meeting_id; 
-        
-        // Guna 'scanned_at' 
-        $attendance->scanned_at = now(); 
-        
-        // Status 'Hadir'
-        $attendance->status = 'present'; 
+        $attendance->meeting_id = $request->meeting_id;
+        $attendance->scanned_at = now();
+        $attendance->status = 'present'; // Ikut database awak 'present'
 
+        // --- 2. LOGIC MENGIKUT JENIS PENGGUNA ---
+        
         if ($request->attendance_type === 'staff') {
             
-            // --- SENARIO 1: STAF MTIB ---
+            // === SENARIO A: STAF MTIB ===
+            
+            // 1. Cari Staf
             $registeredUser = User::where('staff_number', $request->staff_id)->first();
 
+            // Error jika staff tak jumpa
             if (!$registeredUser) {
-                return redirect()->back()
-                        ->withInput()
-                        ->with('error', 'Maaf, No. Pekerja tidak dijumpai. Sila semak semula.');
+                return redirect()->back()->withInput()->with('error', 'Maaf, No. Pekerja tidak dijumpai.');
             }
 
-            $attendance->user_id = $registeredUser->id; 
-            
-            // Simpan Nama ke column baru
+            // 2. [BARU] Semak Duplicate (Guna User ID)
+            $alreadyRegistered = Attendance::where('meeting_id', $request->meeting_id)
+                                           ->where('user_id', $registeredUser->id)
+                                           ->exists();
+
+            if ($alreadyRegistered) {
+                return redirect()->back()->with('error', 'Anda telah mendaftar kehadiran sebelum ini.');
+            }
+
+            // 3. Simpan Data Staf
+            $attendance->user_id = $registeredUser->id;
             $attendance->participant_name = $registeredUser->name; 
-            
-            // Simpan Email ke column 'guest_email' (kita tumpang column ni)
             $attendance->guest_email = $registeredUser->email; 
-            
             $attendance->participant_type = 'Staf MTIB';
-            
-            // Gabung division & section
             $attendance->department = $registeredUser->division ?? $registeredUser->section ?? null; 
-            
             $attendance->company_name = 'MTIB';
 
         } else {
-            // --- SENARIO 2: PESERTA LUAR ---
+            
+            // === SENARIO B: PESERTA LUAR (GUEST) ===
+            
+            // 1. [BARU] Semak Duplicate (Guna Email)
+            $alreadyRegistered = Attendance::where('meeting_id', $request->meeting_id)
+                                           ->where('guest_email', $request->email)
+                                           ->exists();
+
+            if ($alreadyRegistered) {
+                return redirect()->back()->with('error', 'E-mel ini telah didaftarkan untuk kehadiran sebelum ini.');
+            }
+
+            // 2. Simpan Data Guest
             $attendance->user_id = null;
             
-            // Simpan Nama Manual
-            $attendance->participant_name = $request->name;
+            // Pastikan Nama disimpan (Menjawab soalan no.2 awak)
+            $attendance->participant_name = $request->name; 
             
-            // Simpan Email Manual
+            // Pastikan Email disimpan
             $attendance->guest_email = $request->email;
             
+            // Pastikan Company disimpan
+            $attendance->company_name = $request->company_name ?? '-'; 
+            
             $attendance->participant_type = 'Peserta Luar';
-            $attendance->company_name = $request->company_name ?? null; 
         }
 
         $attendance->save();
