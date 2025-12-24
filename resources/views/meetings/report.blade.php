@@ -13,10 +13,15 @@
         .label { font-weight: bold; width: 100px; }
 
         table.list { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        table.list th, table.list td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        table.list th, table.list td { border: 1px solid #ddd; padding: 8px; text-align: left; vertical-align: top; }
         table.list th { background-color: #f2f2f2; color: #333; }
         
         .footer { position: fixed; bottom: 0; width: 100%; text-align: center; font-size: 10px; color: #aaa; }
+        
+        /* Helper classes */
+        .text-bold { font-weight: bold; }
+        .text-small { font-size: 10px; color: #666; }
+        .badge { background-color: #eee; padding: 2px 5px; border-radius: 3px; font-size: 10px; }
     </style>
 </head>
 <body>
@@ -60,8 +65,8 @@
         <thead>
             <tr>
                 <th style="width: 30px;">Bil</th>
-                <th>Nama Peserta</th>
-                <th>Jenis</th>
+                <th>Nama Peserta & Identiti</th>
+                <th>Syarikat / Bahagian</th>
                 <th>Waktu Imbas</th>
                 <th>Status</th>
             </tr>
@@ -69,19 +74,43 @@
         <tbody>
             @forelse($attendances as $index => $attendance)
                 <tr>
-                    <td>{{ $index + 1 }}</td>
+                    <td style="text-align: center;">{{ $index + 1 }}</td>
+                    
                     <td>
+                        <div class="text-bold">{{ $attendance->participant_name ?? 'Nama Tidak Dijumpai' }}</div>
+                        
                         @if($attendance->user)
-                            {{ $attendance->user->name }} <br>
-                            <small style="color: #666;">{{ $attendance->user->section }}</small>
+                            <div class="text-small">No. Pekerja: {{ $attendance->user->staff_number ?? '-' }}</div>
+                            <div class="text-small">{{ $attendance->user->email }}</div>
                         @else
-                            {{ $attendance->guest_email }} <br>
-                            <small style="color: #666;">(Peserta Luar)</small>
+                            <div class="text-small">{{ $attendance->guest_email }}</div>
+                            <span class="badge">Peserta Luar</span>
                         @endif
                     </td>
-                    <td>{{ $attendance->user ? 'Staf' : 'Tetamu' }}</td>
-                    <td>{{ \Carbon\Carbon::parse($attendance->scanned_at)->format('H:i:s A') }}</td>
-                    <td style="color: green; font-weight: bold;">Hadir</td>
+
+                    <td>
+                        @if($attendance->user)
+                            MTIB
+                            <br>
+                            <span class="text-small">
+                                {{ $attendance->department ?? $attendance->user->division ?? $attendance->user->section ?? '-' }}
+                            </span>
+                        @else
+                            {{ $attendance->company_name ?? '-' }}
+                        @endif
+                    </td>
+
+                    <td>
+                        {{ \Carbon\Carbon::parse($attendance->scanned_at)->format('H:i:s A') }}
+                    </td>
+
+                    <td style="color: green; font-weight: bold; text-align: center;">
+                        @if($attendance->status == 'present' || $attendance->status == 'Hadir')
+                            Hadir
+                        @else
+                            {{ ucfirst($attendance->status) }}
+                        @endif
+                    </td>
                 </tr>
             @empty
                 <tr>
