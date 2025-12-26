@@ -35,7 +35,18 @@
                         </div>
                         <div class="text-right">
                             <span class="block text-sm text-gray-500">{{ __('messages.status_label') }}</span>
-                            <span class="text-green-600 font-bold uppercase text-sm">{{ $meeting->status }}</span>
+                            
+                            {{-- LOGIK BARU: Semak Status Berdasarkan Masa --}}
+                            @php
+                                $meetingEnd = \Carbon\Carbon::parse($meeting->date . ' ' . $meeting->end_time);
+                                $isCompleted = now()->greaterThan($meetingEnd);
+                            @endphp
+
+                            @if($isCompleted)
+                                <span class="text-green-600 font-bold uppercase text-sm">COMPLETED</span>
+                            @else
+                                <span class="text-blue-600 font-bold uppercase text-sm">UPCOMING</span>
+                            @endif
                         </div>
                     </div>
 
@@ -71,7 +82,8 @@
                             <svg class="w-6 h-6 text-gray-400 mr-3 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                             <div>
                                 <p class="text-sm text-gray-500 font-medium">{{ __('messages.organizer_label') }}</p>
-                                <p class="text-lg font-bold text-gray-800">{{ $meeting->organizer ?? 'MTIB' }}</p>
+                                {{-- KOD DIBAIKI: Mengambil terus dari database --}}
+                                <p class="text-lg font-bold text-gray-800">{{ $meeting->organizer }}</p>
                             </div>
                         </div>
                     </div>

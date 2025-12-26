@@ -54,7 +54,7 @@ class AttendanceController extends Controller
         $attendance = new Attendance();
         $attendance->meeting_id = $request->meeting_id;
         $attendance->scanned_at = now();
-        $attendance->status = 'present'; // Ikut database awak 'present'
+        $attendance->status = 'present'; 
 
         // --- 2. LOGIC MENGIKUT JENIS PENGGUNA ---
         
@@ -103,7 +103,7 @@ class AttendanceController extends Controller
             // 2. Simpan Data Guest
             $attendance->user_id = null;
             
-            // Pastikan Nama disimpan (Menjawab soalan no.2 awak)
+            // Pastikan Nama disimpan 
             $attendance->participant_name = $request->name; 
             
             // Pastikan Email disimpan

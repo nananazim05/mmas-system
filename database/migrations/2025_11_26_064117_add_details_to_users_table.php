@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            // Tambahan kepada ID, Name, Email yang sedia ada
+            
             $table->string('ic_number')->nullable()->unique(); // No Kad Pengenalan
             $table->string('staff_number')->nullable()->unique(); // No Pekerja
             $table->string('section')->nullable(); // Seksyen/Unit

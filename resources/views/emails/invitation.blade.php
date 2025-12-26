@@ -18,7 +18,7 @@
                 <li style="margin-bottom: 10px;">📅 <strong>Tarikh:</strong> {{ \Carbon\Carbon::parse($meeting->date)->format('d M Y') }}</li>
                 <li style="margin-bottom: 10px;">⏰ <strong>Masa:</strong> {{ \Carbon\Carbon::parse($meeting->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($meeting->end_time)->format('H:i') }}</li>
                 <li style="margin-bottom: 10px;">📍 <strong>Tempat:</strong> {{ $meeting->venue }}</li>
-                <li>👤 <strong>Penganjur:</strong> {{ $meeting->organizer->name ?? 'MTIB' }}</li>
+                <li>👤 <strong>Penganjur:</strong> {{ $meeting->organizer }}</li>
             </ul>
         </div>
 

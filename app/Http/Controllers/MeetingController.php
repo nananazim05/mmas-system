@@ -118,10 +118,10 @@ class MeetingController extends Controller
             'activity_type' => $request->activity_type,
             'organizer' => $request->organizer, 
             
-            'creator_id' => Auth::id(), // <--- PENTING: Simpan ID staf yang login
+            'creator_id' => Auth::id(), // Simpan ID staf yang login
             
             'qr_code_string' => Str::random(32),
-            'status' => 'upcoming', // atau 'active' ikut enum database awak
+            'status' => 'upcoming', 
         ]);
 
         // C. JEMPUT STAF
@@ -270,13 +270,13 @@ class MeetingController extends Controller
     // 11. Fungsi Aktifkan Semula (Re-activate)
     public function reactivate(Meeting $meeting)
     {
-        // Kita lanjutkan masa tamat sebanyak 30 minit dari sekarang
+        // lanjutkan masa tamat sebanyak 10 minit dari sekarang
         $meeting->update([
-            'end_time' => now()->addMinutes(30)->format('H:i:s'),
+            'end_time' => now()->addMinutes(10)->format('H:i:s'),
             'status' => 'active' // Paksa status jadi aktif
         ]);
 
-        return redirect()->back()->with('success', 'Kod QR diaktifkan semula selama 30 minit.');
+        return redirect()->back()->with('success', 'Kod QR diaktifkan semula selama 10 minit.');
     }
 
     // 12. Lihat Laporan di Browser (Stream)
