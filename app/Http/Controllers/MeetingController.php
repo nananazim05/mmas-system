@@ -285,7 +285,7 @@ class MeetingController extends Controller
         // lanjutkan masa tamat sebanyak 10 minit dari sekarang
         $meeting->update([
             'end_time' => now()->addMinutes(10)->format('H:i:s'),
-            'status' => 'active' // Paksa status jadi aktif
+            'status' => 'upcoming' // Paksa status jadi aktif
         ]);
 
         return redirect()->back()->with('success', 'Kod QR diaktifkan semula selama 10 minit.');
