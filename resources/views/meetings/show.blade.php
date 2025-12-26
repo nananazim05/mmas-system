@@ -26,6 +26,12 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
+            {{-- LOGIK UTAMA: Semak Status Berdasarkan Masa --}}
+            @php
+                $meetingEnd = \Carbon\Carbon::parse($meeting->date . ' ' . $meeting->end_time);
+                $isCompleted = now()->greaterThan($meetingEnd);
+            @endphp
+
             <div class="lg:col-span-2 bg-white shadow-lg rounded-lg overflow-hidden border-t-4 border-[#B6192E]">
                 <div class="p-8">
                     <div class="flex justify-between items-start mb-6">
@@ -36,12 +42,6 @@
                         <div class="text-right">
                             <span class="block text-sm text-gray-500">{{ __('messages.status_label') }}</span>
                             
-                            {{-- LOGIK BARU: Semak Status Berdasarkan Masa --}}
-                            @php
-                                $meetingEnd = \Carbon\Carbon::parse($meeting->date . ' ' . $meeting->end_time);
-                                $isCompleted = now()->greaterThan($meetingEnd);
-                            @endphp
-
                             @if($isCompleted)
                                 <span class="text-green-600 font-bold uppercase text-sm">COMPLETED</span>
                             @else
@@ -54,7 +54,10 @@
                         <div class="flex items-start">
                             <svg class="w-6 h-6 text-gray-400 mr-3 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                             <div>
-                                <p class="text-sm text-gray-500 font-medium">{{ __('messages.date_label') }}</p>
+                                {{-- Guna Translation TAPI buang simbol * guna str_replace --}}
+                                <p class="text-sm text-gray-500 font-medium">
+                                    {{ str_replace('*', '', __('messages.date_label')) }}
+                                </p>
                                 <p class="text-lg font-bold text-gray-800">{{ \Carbon\Carbon::parse($meeting->date)->format('d F Y') }}</p>
                             </div>
                         </div>
@@ -62,7 +65,9 @@
                         <div class="flex items-start">
                             <svg class="w-6 h-6 text-gray-400 mr-3 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             <div>
-                                <p class="text-sm text-gray-500 font-medium">{{ __('messages.start_time_label') }}</p>
+                                <p class="text-sm text-gray-500 font-medium">
+                                    {{ str_replace('*', '', __('messages.start_time_label')) }}
+                                </p>
                                 <p class="text-lg font-bold text-gray-800">
                                     {{ \Carbon\Carbon::parse($meeting->start_time)->format('H:i') }} - 
                                     {{ \Carbon\Carbon::parse($meeting->end_time)->format('H:i') }}
@@ -73,7 +78,9 @@
                         <div class="flex items-start">
                             <svg class="w-6 h-6 text-gray-400 mr-3 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                             <div>
-                                <p class="text-sm text-gray-500 font-medium">{{ __('messages.venue_label') }}</p>
+                                <p class="text-sm text-gray-500 font-medium">
+                                    {{ str_replace('*', '', __('messages.venue_label')) }}
+                                </p>
                                 <p class="text-lg font-bold text-gray-800">{{ $meeting->venue }}</p>
                             </div>
                         </div>
@@ -81,8 +88,9 @@
                         <div class="flex items-start">
                             <svg class="w-6 h-6 text-gray-400 mr-3 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                             <div>
-                                <p class="text-sm text-gray-500 font-medium">{{ __('messages.organizer_label') }}</p>
-                                {{-- KOD DIBAIKI: Mengambil terus dari database --}}
+                                <p class="text-sm text-gray-500 font-medium">
+                                    {{ str_replace('*', '', __('messages.organizer_label')) }}
+                                </p>
                                 <p class="text-lg font-bold text-gray-800">{{ $meeting->organizer }}</p>
                             </div>
                         </div>
@@ -97,9 +105,9 @@
                     <div class="hidden print:block mb-6 w-full text-center">
                         <h1 class="text-3xl font-bold text-black mb-2 uppercase">{{ $meeting->title }}</h1>
                         <div class="text-lg text-gray-600 border-b-2 border-gray-400 pb-4 mb-4">
-                            <p><strong>{{ __('messages.date_label') }}:</strong> {{ \Carbon\Carbon::parse($meeting->date)->format('d F Y') }}</p>
-                            <p><strong>{{ __('messages.start_time_label') }}:</strong> {{ \Carbon\Carbon::parse($meeting->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($meeting->end_time)->format('H:i') }}</p>
-                            <p><strong>{{ __('messages.venue_label') }}:</strong> {{ $meeting->venue }}</p>
+                            <p><strong>{{ str_replace('*', '', __('messages.date_label')) }}:</strong> {{ \Carbon\Carbon::parse($meeting->date)->format('d F Y') }}</p>
+                            <p><strong>{{ str_replace('*', '', __('messages.start_time_label')) }}:</strong> {{ \Carbon\Carbon::parse($meeting->start_time)->format('H:i') }} - {{ \Carbon\Carbon::parse($meeting->end_time)->format('H:i') }}</p>
+                            <p><strong>{{ str_replace('*', '', __('messages.venue_label')) }}:</strong> {{ $meeting->venue }}</p>
                         </div>
                         <p class="text-base text-black font-semibold mb-2">
                             {{ __('messages.scan_instruction') }}
@@ -109,8 +117,14 @@
                     <h4 class="text-xl font-bold text-gray-800 mb-4 print:hidden">{{ __('messages.scan_attendance_title') }}</h4>
                     <p class="text-sm text-gray-500 mb-6 print:hidden">{{ __('messages.scan_instruction') }}</p>
                     
-                    <div class="p-4 bg-white border-2 border-gray-200 rounded-lg inline-block print:border-4 print:border-black print:p-2">
+                    <div class="p-4 bg-white border-2 border-gray-200 rounded-lg inline-block print:border-4 print:border-black print:p-2 relative">
                         {!! SimpleSoftwareIO\QrCode\Facades\QrCode::size(300)->generate(URL::signedRoute('attendance.scan', ['meeting' => $meeting->id, 'code' => $meeting->qr_code_string])) !!}
+                        
+                        @if($isCompleted)
+                            <div class="absolute inset-0 bg-white bg-opacity-80 flex items-center justify-center print:hidden">
+                                <span class="text-red-600 font-bold border-2 border-red-600 p-1 rounded transform -rotate-12">TAMAT</span>
+                            </div>
+                        @endif
                     </div>
 
                     <div class="mt-6 no-print">
@@ -121,6 +135,18 @@
                     </div>
 
                     <div class="mt-6 w-full no-print space-y-3">
+                        
+                        {{-- BUTTON RE-ACTIVATE --}}
+                        @if($isCompleted)
+                            <form action="{{ route('activities.reactivate', $meeting->id) }}" method="POST" class="w-full">
+                                @csrf
+                                <button type="submit" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded transition flex items-center justify-center gap-2 shadow-md">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    <span>Aktifkan Semula (10 Minit)</span>
+                                </button>
+                            </form>
+                        @endif
+
                         <button onclick="window.print()" class="w-full bg-gray-800 text-white font-bold py-2 px-4 rounded hover:bg-gray-900 transition flex items-center justify-center gap-2">
                             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                             <span class="text-white">{{ __('messages.print_qr') }}</span>
