@@ -136,12 +136,12 @@
 
                     <div class="mt-6 w-full no-print space-y-3">
                         
-                        {{-- BUTTON RE-ACTIVATE --}}
+                        {{-- BUTTON RE-ACTIVATE (KUNING TERANG + TEKS PUTIH) --}}
                         @if($isCompleted)
                             <form action="{{ route('activities.reactivate', $meeting->id) }}" method="POST" class="w-full">
                                 @csrf
-                                <button type="submit" class="w-full bg-gray-800 border-2 border-yellow-500 text-yellow-500 hover:bg-gray-700 hover:text-white font-bold py-2 px-4 rounded transition flex items-center justify-center gap-2 shadow-md mb-4">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <button type="submit" class="w-full bg-yellow-500 text-white hover:bg-yellow-600 font-bold py-2 px-4 rounded transition flex items-center justify-center gap-2 shadow-md mb-4">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                     <span>Aktifkan Semula (10 Minit)</span>
                                 </button>
                             </form>
