@@ -39,6 +39,20 @@ return [
     'status_absent' => 'Absent',
     'status_invited' => 'Invited',
 
+    'activity_status' => 'Activity Status',
+    'status_upcoming' => 'Upcoming',
+    'status_ongoing' => 'Ongoing',
+    'status_completed' => 'Completed',
+    
+    'activity_title' => 'Activity Title',
+    'date_time' => 'Date & Time',
+    'venue' => 'Venue',
+    'organizer' => 'Organizer',
+    'my_status' => 'My Status',
+    'action' => 'Action',
+    'no_activities_found' => 'No activities found.',
+    'search_placeholder' => 'Search activities...',
+
     // Days (Short)
     'days' => [
         'sun' => 'Sun',
@@ -50,15 +64,6 @@ return [
         'sat' => 'Sat',
     ],
 
-    // Activity List (Continuation)
-    'activity_title' => 'Activity Title',
-    'date_time' => 'Date & Time',
-    'venue' => 'Venue',
-    'organizer' => 'Organizer',
-    'my_status' => 'My Status',
-    'action' => 'Action',
-    'no_activities_found' => 'No activities found.',
-    'search_placeholder' => 'Search activities...',
 
     // Filter & Search
     'month_placeholder' => '- Month -',

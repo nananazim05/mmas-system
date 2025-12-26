@@ -66,19 +66,19 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.date_time') }}</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.venue') }}</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.organizer') }}</th>
-                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.my_status') }}</th>
+                            
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                @if(Auth::user()->role === 'admin')
+                                    {{ __('messages.activity_status') }} @else
+                                    {{ __('messages.my_status') }} @endif
+                            </th>
+                            
                             <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('messages.action') }}</th>
                         </tr>
                     </thead>
                     <tbody id="activityListBody" class="bg-white divide-y divide-gray-200">
                         @forelse ($meetings as $index => $meeting)
-                            @php
-                                $isOrganizer = $meeting->organizer_id === Auth::id();
-                                $attendance = $meeting->attendances->where('user_id', Auth::id())->first();
-                                $meetingEndTime = \Carbon\Carbon::parse($meeting->date . ' ' . $meeting->end_time);
-                                $isPast = now()->greaterThan($meetingEndTime);
-                            @endphp
-
+                            
                             <tr class="hover:bg-gray-50 transition">
                                 <td class="px-6 py-4 text-sm text-gray-500">{{ $index + 1 }}</td>
                                 
@@ -88,7 +88,7 @@
                                 </td>
 
                                 <td class="px-6 py-4 text-sm text-gray-500">
-                                    <div>{{ \Carbon\Carbon::parse($meeting->date)->format('d M Y') }}</div>
+                                    <div class="font-semibold text-gray-700">{{ \Carbon\Carbon::parse($meeting->date)->format('d M Y') }}</div>
                                     <div class="text-xs text-gray-400">
                                         {{ \Carbon\Carbon::parse($meeting->start_time)->format('H:i') }} - 
                                         {{ \Carbon\Carbon::parse($meeting->end_time)->format('H:i') }}
@@ -99,30 +99,64 @@
 
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
-                                        <div class="h-6 w-6 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-bold text-xs mr-2">
-                                            {{ substr($meeting->organizer->name ?? 'A', 0, 1) }}
+                                        <div class="h-6 w-6 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-bold text-xs mr-2 uppercase">
+                                            {{ substr($meeting->organizer ?? 'A', 0, 1) }}
                                         </div>
-                                        <span class="text-sm font-medium text-gray-900">{{ $meeting->organizer->name ?? 'Staf' }}</span>
+                                        <span class="text-sm font-medium text-gray-900">{{ $meeting->organizer ?? 'Staf' }}</span>
                                     </div>
                                 </td>
 
                                 <td class="px-6 py-4 text-center whitespace-nowrap">
-                                    @if($isOrganizer)
-                                        <span class="px-2 py-1 text-xs font-bold rounded bg-purple-100 text-purple-700 border border-purple-200">
-                                            {{ __('messages.status_organizer') }}
-                                        </span>
-                                    @elseif($attendance)
-                                        <span class="px-2 py-1 text-xs font-bold rounded bg-green-100 text-green-700 border border-green-200">
-                                            {{ __('messages.status_present') }} ({{ \Carbon\Carbon::parse($attendance->scanned_at)->format('H:i') }})
-                                        </span>
-                                    @elseif($isPast)
-                                        <span class="px-2 py-1 text-xs font-bold rounded bg-red-100 text-red-700 border border-red-200">
-                                            {{ __('messages.status_absent') }}
-                                        </span>
+                                    
+                                    @if(Auth::user()->role === 'admin')
+                                        {{-- === ADMIN VIEW (STATUS MASA) === --}}
+                                        @php
+                                            $now = \Carbon\Carbon::now();
+                                            $start = \Carbon\Carbon::parse($meeting->date . ' ' . $meeting->start_time);
+                                            $end = \Carbon\Carbon::parse($meeting->date . ' ' . $meeting->end_time);
+                                        @endphp
+
+                                        @if($now < $start)
+                                            <span class="px-2 py-1 text-xs font-bold rounded bg-blue-100 text-blue-700 border border-blue-200">
+                                                {{ __('messages.status_upcoming') }}
+                                            </span>
+                                        @elseif($now->between($start, $end))
+                                            <span class="px-2 py-1 text-xs font-bold rounded bg-green-100 text-green-700 border border-green-200 animate-pulse">
+                                                {{ __('messages.status_ongoing') }}
+                                            </span>
+                                        @else
+                                            <span class="px-2 py-1 text-xs font-bold rounded bg-gray-200 text-gray-600 border border-gray-300">
+                                                {{ __('messages.status_completed') }}
+                                            </span>
+                                        @endif
+
                                     @else
-                                        <span class="px-2 py-1 text-xs font-bold rounded bg-yellow-100 text-yellow-700 border border-yellow-200">
-                                            {{ __('messages.status_invited') }}
-                                        </span>
+                                        {{-- === STAFF VIEW (STATUS KEHADIRAN) === --}}
+                                        @php
+                                            $attendance = $meeting->attendances->where('user_id', Auth::id())->first();
+                                            $invitation = $meeting->invitations->where('user_id', Auth::id())->first();
+                                            $meetingEndTime = \Carbon\Carbon::parse($meeting->date . ' ' . $meeting->end_time);
+                                            $isPast = now()->greaterThan($meetingEndTime);
+                                        @endphp
+
+                                        @if($attendance)
+                                            <span class="px-2 py-1 text-xs font-bold rounded bg-green-100 text-green-700 border border-green-200">
+                                                {{ __('messages.status_present') }}
+                                            </span>
+                                        @elseif($invitation)
+                                            <span class="px-2 py-1 text-xs font-bold rounded bg-yellow-100 text-yellow-700 border border-yellow-200">
+                                                {{ __('messages.status_invited') }}
+                                            </span>
+                                        @elseif($isPast)
+                                            <span class="px-2 py-1 text-xs font-bold rounded bg-red-100 text-red-700 border border-red-200">
+                                                {{ __('messages.status_absent') }}
+                                            </span>
+                                        @else
+                                            <span class="px-2 py-1 text-xs font-bold rounded bg-gray-100 text-gray-500 border border-gray-200">
+                                                -
+                                            </span>
+                                        @endif
+
                                     @endif
                                 </td>
 
@@ -132,7 +166,8 @@
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                         </a>
 
-                                        @if(Auth::user()->role === 'admin' || Auth::id() === $meeting->organizer_id)
+                                        {{-- Guna creator_id untuk check permission --}}
+                                        @if(Auth::user()->role === 'admin' || Auth::id() === $meeting->creator_id)
                                             <a href="{{ route('activities.edit', $meeting->id) }}" class="text-yellow-600 hover:text-yellow-900 p-1 bg-yellow-50 rounded" title="Edit">
                                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                                             </a>
@@ -156,7 +191,6 @@
                 </table>
             </div>
         </div>
-
     </div>
 
     <script>
@@ -165,7 +199,6 @@
             var rows = document.querySelectorAll('#activityListBody tr');
             
             rows.forEach(function(row) {
-                // Jangan sembunyikan baris "Tiada Rekod"
                 if (row.id === 'noResultsRow') return;
 
                 var text = row.innerText.toLowerCase();

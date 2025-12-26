@@ -39,6 +39,20 @@ return [
     'status_absent' => 'Tidak Hadir',
     'status_invited' => 'Dijemput',
 
+    'activity_status' => 'Status Aktiviti',
+    'status_upcoming' => 'Akan Datang',
+    'status_ongoing' => 'Sedang Berlangsung',
+    'status_completed' => 'Selesai',
+
+    'activity_title' => 'Tajuk Aktiviti',
+    'date_time' => 'Tarikh & Masa',
+    'venue' => 'Tempat',
+    'organizer' => 'Penganjur',
+    'my_status' => 'Status Saya',
+    'action' => 'Tindakan',
+    'no_activities_found' => 'Tiada aktiviti dijumpai.',
+    'search_placeholder' => 'Cari aktiviti...',
+
     // Hari (Singkatan)
     'days' => [
         'sun' => 'Aha',
@@ -50,20 +64,10 @@ return [
         'sat' => 'Sab',
     ],
 
-    // Senarai Aktiviti (Sambungan)
-    'activity_title' => 'Tajuk Aktiviti',
-    'date_time' => 'Tarikh & Masa',
-    'venue' => 'Tempat',
-    'organizer' => 'Penganjur',
-    'my_status' => 'Status Saya',
-    'action' => 'Tindakan',
-    'no_activities_found' => 'Tiada aktiviti dijumpai.',
-    'search_placeholder' => 'Cari aktiviti...',
-
     // Filter & Search
     'month_placeholder' => '- Bulan -',
     'year_placeholder' => '- Tahun -',
-    'filter_btn' => 'Cari',   // Kita tukar 'Tapis' jadi 'Cari'
+    'filter_btn' => 'Cari',   
     'reset_btn' => 'Reset',
     
     // Status

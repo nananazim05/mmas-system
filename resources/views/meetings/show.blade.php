@@ -71,14 +71,14 @@
                             <svg class="w-6 h-6 text-gray-400 mr-3 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                             <div>
                                 <p class="text-sm text-gray-500 font-medium">{{ __('messages.organizer_label') }}</p>
-                                <p class="text-lg font-bold text-gray-800">{{ $meeting->organizer->name ?? 'Staf MTIB' }}</p>
+                                <p class="text-lg font-bold text-gray-800">{{ $meeting->organizer ?? 'MTIB' }}</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            @if(Auth::id() === $meeting->organizer_id)
+            @if(Auth::user()->role === 'admin' || Auth::id() === $meeting->creator_id)
                 
                 <div id="printableArea" class="bg-white shadow-lg rounded-lg overflow-hidden p-8 flex flex-col items-center justify-center text-center border-t-4 border-gray-800 relative">
                     
@@ -98,13 +98,11 @@
                     <p class="text-sm text-gray-500 mb-6 print:hidden">{{ __('messages.scan_instruction') }}</p>
                     
                     <div class="p-4 bg-white border-2 border-gray-200 rounded-lg inline-block print:border-4 print:border-black print:p-2">
-                        {{-- PEMBETULAN: Guna URL::signedRoute untuk jana QR yang sah --}}
                         {!! SimpleSoftwareIO\QrCode\Facades\QrCode::size(300)->generate(URL::signedRoute('attendance.scan', ['meeting' => $meeting->id, 'code' => $meeting->qr_code_string])) !!}
                     </div>
 
                     <div class="mt-6 no-print">
                         <p class="text-xs text-gray-400 mb-2">{{ __('messages.testing_only') }}</p>
-                        {{-- PEMBETULAN: Guna URL::signedRoute untuk link simulasi --}}
                         <a href="{{ URL::signedRoute('attendance.scan', ['meeting' => $meeting->id, 'code' => $meeting->qr_code_string]) }}" target="_blank" class="text-blue-600 underline text-sm font-bold hover:text-blue-800">
                             {{ __('messages.simulation_link') }}
                         </a>
