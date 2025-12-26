@@ -216,23 +216,35 @@ class MeetingController extends Controller
     // 8. Padam Data (Destroy)
     public function destroy(Meeting $meeting)
     {
-        $title = $meeting->title;
-        $date = $meeting->date;
-        $invitations = $meeting->invitations;
+        // 1. Gabungkan Tarikh & Masa Tamat untuk dapat waktu sebenar
+        $meetingEnd = \Carbon\Carbon::parse($meeting->date . ' ' . $meeting->end_time);
 
-        foreach ($invitations as $invite) {
-            if ($invite->user_id) {
-                $user = User::find($invite->user_id);
-                if ($user && $user->email) Mail::to($user->email)->send(new MeetingCancelled($title, $date));
-            } elseif ($invite->guest_email) {
-                Mail::to($invite->guest_email)->send(new MeetingCancelled($title, $date));
+        if (now()->lessThan($meetingEnd)) {
+            
+            $title = $meeting->title;
+            $date = $meeting->date;
+            $invitations = $meeting->invitations;
+
+            foreach ($invitations as $invite) {
+                // Hantar kepada Staf
+                if ($invite->user_id) {
+                    $user = User::find($invite->user_id);
+                    if ($user && $user->email) {
+                        Mail::to($user->email)->send(new MeetingCancelled($title, $date));
+                    }
+                } 
+                // Hantar kepada Peserta Luar
+                elseif ($invite->guest_email) {
+                    Mail::to($invite->guest_email)->send(new MeetingCancelled($title, $date));
+                }
             }
         }
 
+        // 3. Terus padam data dari database
         $meeting->delete();
-        return redirect()->route('activities.my')->with('success', 'Aktiviti dibatalkan.');
+        
+        return redirect()->route('activities.my')->with('success', 'Aktiviti berjaya dipadam.');
     }
-
     // 9. Laporan PDF (Report)
     public function report(Meeting $meeting)
     {
