@@ -22,11 +22,11 @@ class MeetingController extends Controller
         $user = Auth::user();
         $query = Meeting::query();
 
-        // Tapis Ikut Role
+    
         if ($user->role !== 'admin') {
-            // Staf: Hanya tengok yang dia ANJUR atau DIJEMPUT
+            
             $query->where(function($q) use ($user) {
-                $q->where('organizer_id', $user->id)
+                $q->where('creator_id', $user->id) 
                   ->orWhereHas('invitations', function($subQ) use ($user) {
                       $subQ->where('user_id', $user->id);
                   });
@@ -43,7 +43,7 @@ class MeetingController extends Controller
             $query->whereYear('date', $request->year);
         }
 
-        // Dapatkan Data
+        // Dapatkan Data (Susun tarikh terkini di atas)
         $meetings = $query->orderBy('date', 'desc')->get();
 
         return view('meetings.index', compact('meetings'));
@@ -52,16 +52,16 @@ class MeetingController extends Controller
     // 2. Anjuran Saya 
     public function myActivities(Request $request)
     {
-        // Mula Query: Hanya ambil aktiviti penganjur ini
-        $query = Meeting::where('organizer_id', Auth::id());
+        $query = Meeting::where('creator_id', Auth::id());
 
         // 1. LOGIK CARIAN (Search)
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
-                $q->where('title', 'LIKE', "%{$search}%")       // Cari Tajuk
-                  ->orWhere('venue', 'LIKE', "%{$search}%")     // Cari Tempat
-                  ->orWhere('activity_type', 'LIKE', "%{$search}%"); // Cari Jenis
+                $q->where('title', 'LIKE', "%{$search}%")       
+                  ->orWhere('venue', 'LIKE', "%{$search}%")     
+                  ->orWhere('organizer', 'LIKE', "%{$search}%") 
+                  ->orWhere('activity_type', 'LIKE', "%{$search}%"); 
             });
         }
 
@@ -75,7 +75,7 @@ class MeetingController extends Controller
             $query->whereYear('date', $request->year);
         }
 
-        // Dapatkan data (susun tarikh terkini atas)
+        // Dapatkan data
         $meetings = $query->orderBy('date', 'desc')->get();
 
         return view('meetings.my_activities', compact('meetings'));
@@ -91,6 +91,7 @@ class MeetingController extends Controller
     // 4. Simpan Data (Store)
     public function store(Request $request)
     {
+        // A. VALIDASI
         $request->validate([
             'title' => 'required|string|max:255',
             'date' => 'required|date',
@@ -98,7 +99,7 @@ class MeetingController extends Controller
             'end_time' => 'required|after:start_time',
             'venue' => 'required|string',
             'activity_type' => 'required|string',
-            'organizer' => 'required|string|max:255',
+            'organizer' => 'required|string|max:255', 
             'invited_staff' => 'required_without:guest_emails',
             'guest_emails' => 'required_without:invited_staff',
         ], [
@@ -107,19 +108,23 @@ class MeetingController extends Controller
             'end_time.after' => 'Masa tamat mestilah selepas masa mula.',
         ]);
 
+        // B. SIMPAN KE DATABASE
         $meeting = Meeting::create([
-            'organizer' => $request->organizer,
             'title' => $request->title,
             'date' => $request->date,
             'start_time' => $request->start_time,
             'end_time' => $request->end_time,
             'venue' => $request->venue,
             'activity_type' => $request->activity_type,
+            'organizer' => $request->organizer, 
+            
+            'creator_id' => Auth::id(), // <--- PENTING: Simpan ID staf yang login
+            
             'qr_code_string' => Str::random(32),
-            'status' => 'upcoming',
+            'status' => 'upcoming', // atau 'active' ikut enum database awak
         ]);
 
-        // Jemput STAF
+        // C. JEMPUT STAF
         if ($request->has('invited_staff')) {
             foreach ($request->invited_staff as $userId) {
                 Invitation::create([
@@ -127,14 +132,20 @@ class MeetingController extends Controller
                     'user_id' => $userId,
                     'status' => 'invited'
                 ]);
+                
+                // Hantar Email
                 $user = User::find($userId);
                 if ($user && $user->email) {
-                    Mail::to($user->email)->send(new MeetingInvitation($meeting));
+                    try {
+                        Mail::to($user->email)->send(new MeetingInvitation($meeting));
+                    } catch (\Exception $e) {
+                        // Log error jika email gagal, tapi jangan stop sistem
+                    }
                 }
             }
         }
 
-        // Jemput LUAR
+        // D. JEMPUT LUAR
         if ($request->filled('guest_emails')) {
             $emails = explode(',', $request->guest_emails);
             foreach ($emails as $email) {
@@ -146,7 +157,12 @@ class MeetingController extends Controller
                         'guest_name' => 'Peserta Luar',
                         'status' => 'invited'
                     ]);
-                    Mail::to($email)->send(new MeetingInvitation($meeting));
+                    
+                    try {
+                        Mail::to($email)->send(new MeetingInvitation($meeting));
+                    } catch (\Exception $e) {
+                        // Log error
+                    }
                 }
             }
         }

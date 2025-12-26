@@ -11,6 +11,7 @@ class Meeting extends Model
 
     protected $fillable = [
         'organizer',
+        'creator_id',
         'title',
         'date',
         'start_time',
@@ -24,7 +25,7 @@ class Meeting extends Model
     // Hubungan: Meeting milik seorang Organizer (User)
     public function organizer()
     {
-        return $this->belongsTo(User::class, 'organizer_id');
+        return $this->belongsTo(User::class, 'creator_id');
     }
 
     // Hubungan: Meeting ada ramai Jemputan (Invitations)
