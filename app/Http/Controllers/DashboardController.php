@@ -14,56 +14,89 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        // A. TENTUKAN TARIKH KALENDAR
+        // Ambil tarikh & masa sekarang
+        $now = Carbon::now();
+        $currentDate = $now->format('Y-m-d');
+        $currentTime = $now->format('H:i:s');
+
+        // TENTUKAN TARIKH KALENDAR
         $tarikhKalendar = $request->has('month') && $request->has('year')
             ? Carbon::create($request->year, $request->month, 1)
             : now();
 
-        // B. LOGIK MENGIKUT PERANAN
         if ($user->role === 'admin') {
-            // --- ADMIN (Lihat Semua) ---
+            // ================= ADMIN =================
             
-            // Statistik: Semua aktiviti tahun ini
+            // 1. Statistik: Semua aktiviti tahun ini
             $jumlahAktivitiTahunIni = Meeting::whereYear('date', now()->year)->count();
             
-            // Senarai: Semua aktiviti akan datang
-            $aktivitiAkanDatang = Meeting::whereDate('date', '>=', now())
-                                        ->orderBy('date', 'asc')
-                                        ->limit(5)
-                                        ->get();
+            // 2. Senarai: Tunjuk 5 terawal sahaja (LIMIT 5)
+            $aktivitiAkanDatang = Meeting::where(function($query) use ($currentDate, $currentTime) {
+                                        $query->where('date', '>', $currentDate)
+                                        ->orWhere(function($subQuery) use ($currentDate, $currentTime) {
+                                            $subQuery->where('date', '=', $currentDate)
+                                                     ->where('end_time', '>', $currentTime);
+                                        });
+                                    })
+                                    ->orderBy('date', 'asc')
+                                    ->orderBy('start_time', 'asc')
+                                    ->limit(5) // <--- Limit untuk paparan senarai
+                                    ->get();
             
-            // Jumlah akan datang (Semua)
-            $jumlahAkanDatang = Meeting::whereDate('date', '>=', now())->count();
+            // 3. Jumlah Kad: Kira SEMUA aktiviti akan datang (TIADA LIMIT)
+            $jumlahAkanDatang = Meeting::where(function($query) use ($currentDate, $currentTime) {
+                                        $query->where('date', '>', $currentDate)
+                                        ->orWhere(function($subQuery) use ($currentDate, $currentTime) {
+                                            $subQuery->where('date', '=', $currentDate)
+                                                     ->where('end_time', '>', $currentTime);
+                                        });
+                                    })->count(); 
 
-            // Data Kalendar (Semua)
+            // 4. Data Kalendar
             $tarikhMeeting = Meeting::whereMonth('date', $tarikhKalendar->month)
                                     ->whereYear('date', $tarikhKalendar->year)
                                     ->pluck('date')
                                     ->toArray();
 
         } else {
-            // --- STAF (Lihat Jemputan Sendiri Sahaja) ---
+            // ================= STAF =================
 
-            // Statistik: Hanya yang dia DIJEMPUT tahun ini
+            // 1. Statistik: Hanya yang dia DIJEMPUT tahun ini
             $jumlahAktivitiTahunIni = Invitation::where('user_id', $user->id)
                                                 ->whereHas('meeting', function($q) {
                                                     $q->whereYear('date', now()->year);
                                                 })->count();
 
-            // Senarai: Hanya meeting yang dia DIJEMPUT dan belum lepas
-           
-            $aktivitiAkanDatang = Meeting::whereDate('date', '>=', now())
-                                        ->whereHas('invitations', function($q) use ($user) {
-                                            $q->where('user_id', $user->id);
-                                        })
-                                        ->orderBy('date', 'asc')
-                                        ->limit(5)
-                                        ->get();
+            // 2. Senarai: Tunjuk 5 terawal sahaja (LIMIT 5)
+            $aktivitiAkanDatang = Meeting::whereHas('invitations', function($q) use ($user) {
+                                        $q->where('user_id', $user->id);
+                                    })
+                                    ->where(function($query) use ($currentDate, $currentTime) {
+                                        $query->where('date', '>', $currentDate)
+                                        ->orWhere(function($subQuery) use ($currentDate, $currentTime) {
+                                            $subQuery->where('date', '=', $currentDate)
+                                                     ->where('end_time', '>', $currentTime);
+                                        });
+                                    })
+                                    ->orderBy('date', 'asc')
+                                    ->orderBy('start_time', 'asc')
+                                    ->limit(5) // Limit paparan senarai
+                                    ->get();
             
-            // Jumlah akan datang (Jemputan sahaja)
-            $jumlahAkanDatang = $aktivitiAkanDatang->count();
+            // 3. Jumlah Kad: Kira SEMUA jemputan akan datang (TIADA LIMIT)
+            $jumlahAkanDatang = Meeting::whereHas('invitations', function($q) use ($user) {
+                                        $q->where('user_id', $user->id);
+                                    })
+                                    ->where(function($query) use ($currentDate, $currentTime) {
+                                        $query->where('date', '>', $currentDate)
+                                        ->orWhere(function($subQuery) use ($currentDate, $currentTime) {
+                                            $subQuery->where('date', '=', $currentDate)
+                                                     ->where('end_time', '>', $currentTime);
+                                        });
+                                    })
+                                    ->count(); 
 
-            // Data Kalendar (Hanya tanda tarikh yang dia dijemput)
+            // 4. Data Kalendar
             $tarikhMeeting = Meeting::whereMonth('date', $tarikhKalendar->month)
                                     ->whereYear('date', $tarikhKalendar->year)
                                     ->whereHas('invitations', function($q) use ($user) {

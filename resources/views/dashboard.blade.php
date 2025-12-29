@@ -86,15 +86,36 @@
                             $startDay = $tarikhKalendar->copy()->startOfMonth()->dayOfWeek;
                         @endphp
                         @for ($i = 0; $i < $startDay; $i++) <div class="p-2"></div> @endfor
+                        
                         @for ($day = 1; $day <= $daysInMonth; $day++)
                             @php
                                 $checkDate = $tarikhKalendar->copy()->day($day)->format('Y-m-d');
                                 $isToday = $checkDate == now()->format('Y-m-d');
                                 $hasMeeting = in_array($checkDate, $tarikhMeeting);
+
+                                // Cari tajuk meeting untuk Tooltip (jika ada)
+                                $meetingTitles = [];
+                                if ($hasMeeting) {
+                                    $meetingsOnDay = \App\Models\Meeting::whereDate('date', $checkDate)->get();
+                                    foreach($meetingsOnDay as $m) {
+                                        $meetingTitles[] = $m->title; // Simpan tajuk aktiviti
+                                    }
+                                }
                             @endphp
-                            <div class="p-2 rounded relative {{ $isToday ? 'bg-green-100 text-green-800 font-bold' : 'hover:bg-gray-100' }} {{ $hasMeeting ? 'border-2 border-red-500 font-bold text-red-600' : '' }}">
+                            
+                            <div class="p-2 rounded relative group {{ $isToday ? 'bg-green-100 text-green-800 font-bold' : 'hover:bg-gray-100' }} {{ $hasMeeting ? 'border-2 border-red-500 font-bold text-red-600 cursor-pointer' : '' }}">
                                 {{ $day }}
-                                @if($hasMeeting) <span class="absolute bottom-1 right-1 w-2 h-2 bg-red-600 rounded-full"></span> @endif
+                                
+                                @if($hasMeeting) 
+                                    <span class="absolute bottom-1 right-1 w-2 h-2 bg-red-600 rounded-full"></span> 
+                                    
+                                    <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-max max-w-xs bg-black text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 pointer-events-none">
+                                        @foreach($meetingTitles as $title)
+                                            <div class="truncate">• {{ $title }}</div>
+                                        @endforeach
+                                        <svg class="absolute text-black h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255" xml:space="preserve"><polygon class="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
+                                    </span>
+                                @endif
                             </div>
                         @endfor
                     </div>
@@ -116,7 +137,7 @@
                                 {{ \Carbon\Carbon::parse($meeting->date)->format('d M Y') }} | {{ \Carbon\Carbon::parse($meeting->start_time)->format('H:i') }}
                             </div>
                             <div class="mt-2 text-[10px] bg-yellow-100 text-yellow-800 px-2 py-1 rounded inline-block">
-                                {{ __('messages.organizer') }}: {{ $meeting->organizer->name ?? 'Staf' }}
+                                {{ __('messages.organizer') }}: {{ $meeting->organizer ?? 'Staf' }}
                             </div>
                         </div>
                     @empty
