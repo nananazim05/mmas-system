@@ -26,10 +26,19 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
-            {{-- LOGIK UTAMA: Semak Status Berdasarkan Masa --}}
+            {{-- LOGIK UTAMA: Semak Status Berdasarkan Masa DAN Cache (Lesen Sementara) --}}
             @php
                 $meetingEnd = \Carbon\Carbon::parse($meeting->date . ' ' . $meeting->end_time);
-                $isCompleted = now()->greaterThan($meetingEnd);
+                
+                // 1. Check adakah masa database dah tamat?
+                $isTimeExpired = now()->greaterThan($meetingEnd);
+
+                // 2. Check adakah ada "Lesen Sementara" (Cache) yang kita set di Controller?
+                $isExtended = \Illuminate\Support\Facades\Cache::has('meeting_extended_' . $meeting->id);
+
+                // 3. Tentukan samada betul-betul TAMAT (Untuk tutup QR)
+                // Ia tamat hanya jika: (Masa Dah Lepas) DAN (Tiada Lesen Sementara)
+                $isReallyCompleted = $isTimeExpired && !$isExtended;
             @endphp
 
             <div class="lg:col-span-2 bg-white shadow-lg rounded-lg overflow-hidden border-t-4 border-[#B6192E]">
@@ -42,8 +51,12 @@
                         <div class="text-right">
                             <span class="block text-sm text-gray-500">{{ __('messages.status_label') }}</span>
                             
-                            @if($isCompleted)
+                            {{-- LOGIK BADGE STATUS --}}
+                            @if($isReallyCompleted)
                                 <span class="text-green-600 font-bold uppercase text-sm">COMPLETED</span>
+                            @elseif($isExtended)
+                                {{-- Jika masa dah tamat TAPI ada lesen sementara --}}
+                                <span class="text-yellow-600 font-bold uppercase text-sm animate-pulse">ACTIVE (LANJUTAN)</span>
                             @else
                                 <span class="text-blue-600 font-bold uppercase text-sm">UPCOMING</span>
                             @endif
@@ -119,9 +132,9 @@
                     <div class="p-4 bg-white border-2 border-gray-200 rounded-lg inline-block print:border-4 print:border-black print:p-2 relative">
                         {!! SimpleSoftwareIO\QrCode\Facades\QrCode::size(300)->generate(URL::signedRoute('attendance.scan', ['meeting' => $meeting->id, 'code' => $meeting->qr_code_string])) !!}
                         
-                        {{-- Overlay jika Tamat --}}
-                        @if($isCompleted)
-                            <div class="absolute inset-0 bg-white bg-opacity-80 flex items-center justify-center print:hidden">
+                        {{-- Overlay jika Tamat: HANYA MUNCUL JIKA BETUL-BETUL COMPLETED (Tiada lesen cache) --}}
+                        @if($isReallyCompleted)
+                            <div class="absolute inset-0 bg-white bg-opacity-95 flex items-center justify-center print:hidden">
                                 <span class="text-red-600 font-bold border-2 border-red-600 p-1 rounded transform -rotate-12">TAMAT</span>
                             </div>
                         @endif
@@ -136,8 +149,7 @@
 
                     <div class="mt-6 w-full no-print space-y-3">
                         
-                        {{-- BUTTON RE-ACTIVATE (Guna Inline Style Supaya Confirm Nampak) --}}
-                        @if($isCompleted)
+                        {{-- BUTTON RE-ACTIVATE --}}
                         <form action="{{ route('activities.reactivate', $meeting->id) }}" method="POST" class="w-full">
                             @csrf
                             <button type="submit" 
@@ -150,7 +162,6 @@
                                 <span>Aktifkan Semula (15 Minit)</span>
                             </button>
                         </form>
-                        @endif
 
                         <button onclick="window.print()" class="w-full bg-gray-800 text-white font-bold py-2 px-4 rounded hover:bg-gray-900 transition flex items-center justify-center gap-2">
                             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>

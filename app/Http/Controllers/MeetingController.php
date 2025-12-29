@@ -283,9 +283,9 @@ class MeetingController extends Controller
     // 11. Fungsi Aktifkan Semula (Re-activate - guna temporaray cache)
     public function reactivate(Meeting $meeting)
     {
-        Cache::put('meeting_extended_' . $meeting->id, true, now()->addMinutes(10));
+        Cache::put('meeting_extended_' . $meeting->id, true, now()->addMinutes(15));
 
-        return redirect()->back()->with('success', 'Kod QR diaktifkan semula selama 10 minit.');
+        return redirect()->back()->with('success', 'Kod QR diaktifkan semula selama 15 minit.');
     }
 
     // 12. Lihat Laporan di Browser (Stream)
