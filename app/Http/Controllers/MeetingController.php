@@ -288,7 +288,7 @@ class MeetingController extends Controller
             'status' => 'upcoming' 
         ]);
 
-        return redirect()->back()->with('success', 'Kod QR diaktifkan semula selama 10 minit.');
+        return redirect()->back()->with('success', 'Kod QR diaktifkan semula selama 15 minit.');
     }
 
     // 12. Lihat Laporan di Browser (Stream)

@@ -136,14 +136,21 @@
 
                     <div class="mt-6 w-full no-print space-y-3">
                         
-                        {{-- BUTTON RE-ACTIVATE (SENTIASA MUNCUL TANPA SYARAT IF) --}}
+                        {{-- BUTTON RE-ACTIVATE (Guna Inline Style Supaya Confirm Nampak) --}}
+                        @if($isCompleted)
                         <form action="{{ route('activities.reactivate', $meeting->id) }}" method="POST" class="w-full">
                             @csrf
-                            <button type="submit" class="w-full bg-yellow-500 text-white hover:bg-yellow-600 font-bold py-2 px-4 rounded transition flex items-center justify-center gap-2 shadow-md mb-4">
-                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                <span>Aktifkan Semula (10 Minit)</span>
+                            <button type="submit" 
+                                    class="w-full font-bold py-2 px-4 rounded transition flex items-center justify-center gap-2 shadow-md mb-4"
+                                    style="background-color: #eab308; color: white; border: 1px solid #ca8a04;">
+                                
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: white;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <span>Aktifkan Semula (15 Minit)</span>
                             </button>
                         </form>
+                        @endif
 
                         <button onclick="window.print()" class="w-full bg-gray-800 text-white font-bold py-2 px-4 rounded hover:bg-gray-900 transition flex items-center justify-center gap-2">
                             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
