@@ -7,6 +7,7 @@ use App\Models\Attendance;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
 
 class AttendanceController extends Controller
@@ -19,23 +20,28 @@ class AttendanceController extends Controller
                           ->where('qr_code_string', $code)
                           ->firstOrFail();
 
-        // Semak Validasi URL (Untuk keselamatan QR Dinamik)
+        // Semak Validasi URL (Untuk keselamatan QR Dinamik/Signed Route)
         if (! $request->hasValidSignature()) {
             abort(403, 'Kod QR ini telah luput atau tidak sah. Sila imbas Kod QR terkini di skrin penganjur.');
         }
 
-        // Semak Waktu Mesyuarat (Aktif 15 minit sebelum & 15 minit selepas)
+        // Tetapkan Waktu Mula & Tamat (Dengan buffer 15 minit standard)
         $now = Carbon::now();
         $startTime = Carbon::parse($meeting->date . ' ' . $meeting->start_time)->subMinutes(15);
         $endTime = Carbon::parse($meeting->date . ' ' . $meeting->end_time)->addMinutes(15);
 
-        // Jika masa belum sampai
+        // 4. Semak jika terlalu awal
         if ($now->lessThan($startTime)) {
             abort(403, 'Pendaftaran kehadiran belum dibuka.');
         }
 
-        // Jika masa dah tamat (Kecuali status disetkan 'active' manual oleh penganjur)
-        if ($now->greaterThan($endTime) && $meeting->status !== 'active') {
+        // Semak jika masa dah tamat
+        // Mula-mula, check dulu ada tak "Lesen Sementara" (Cache) 
+        $isExtended = Cache::has('meeting_extended_' . $meeting->id);
+
+        // Jika (Masa Dah Tamat) DAN (Tiada Lesen Cache) -> Block.
+        // Kalau masa dah tamat tapi ADA lesen cache -> Dia akan lepas.
+        if ($now->greaterThan($endTime) && !$isExtended) {
             abort(403, 'Masa pendaftaran kehadiran telah tamat. Sila minta penganjur aktifkan semula kod QR.');
         }
 

@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Cache;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class MeetingController extends Controller
@@ -275,26 +276,22 @@ class MeetingController extends Controller
 
         return response()->json([
             'qr_code' => (string) $qrCode,
-            'url' => $dynamicUrl // Kita hantar URL juga untuk link 'Simulasi'
+            'url' => $dynamicUrl // hantar URL untuk link 'Simulasi'
         ]);
     }
     
-    // 11. Fungsi Aktifkan Semula (Re-activate)
+    // 11. Fungsi Aktifkan Semula (Re-activate - guna temporaray cache)
     public function reactivate(Meeting $meeting)
     {
-        // lanjutkan masa tamat sebanyak 15 minit dari sekarang
-        $meeting->update([
-            'end_time' => now()->addMinutes(15)->format('H:i:s'),
-            'status' => 'upcoming' 
-        ]);
+        Cache::put('meeting_extended_' . $meeting->id, true, now()->addMinutes(10));
 
-        return redirect()->back()->with('success', 'Kod QR diaktifkan semula selama 15 minit.');
+        return redirect()->back()->with('success', 'Kod QR diaktifkan semula selama 10 minit.');
     }
 
     // 12. Lihat Laporan di Browser (Stream)
     public function viewReport(Meeting $meeting)
     {
-        // 1. Semak Kebenaran (Admin ATAU Penganjur sahaja)
+        // 1. Semak (Admin ATAU Penganjur sahaja)
         if (Auth::user()->role !== 'admin' && $meeting->organizer_id != Auth::id()) {
             abort(403, 'Anda tiada kebenaran untuk melihat laporan ini.');
         }

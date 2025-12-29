@@ -53,7 +53,7 @@
         </tr>
         <tr>
             <td class="label">Penganjur:</td>
-            <td>{{ $meeting->organizer->name ?? 'MTIB' }}</td>
+            <td>{{ $meeting->organizer }}</td>
         </tr>
     </table>
 
