@@ -54,7 +54,6 @@
                         <div class="flex items-start">
                             <svg class="w-6 h-6 text-gray-400 mr-3 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                             <div>
-                                {{-- Guna Translation TAPI buang simbol * guna str_replace --}}
                                 <p class="text-sm text-gray-500 font-medium">
                                     {{ str_replace('*', '', __('messages.date_label')) }}
                                 </p>
@@ -120,6 +119,7 @@
                     <div class="p-4 bg-white border-2 border-gray-200 rounded-lg inline-block print:border-4 print:border-black print:p-2 relative">
                         {!! SimpleSoftwareIO\QrCode\Facades\QrCode::size(300)->generate(URL::signedRoute('attendance.scan', ['meeting' => $meeting->id, 'code' => $meeting->qr_code_string])) !!}
                         
+                        {{-- Overlay jika Tamat --}}
                         @if($isCompleted)
                             <div class="absolute inset-0 bg-white bg-opacity-80 flex items-center justify-center print:hidden">
                                 <span class="text-red-600 font-bold border-2 border-red-600 p-1 rounded transform -rotate-12">TAMAT</span>
@@ -136,16 +136,14 @@
 
                     <div class="mt-6 w-full no-print space-y-3">
                         
-                        {{-- BUTTON RE-ACTIVATE (KUNING TERANG + TEKS PUTIH) --}}
-                        @if($isCompleted)
-                            <form action="{{ route('activities.reactivate', $meeting->id) }}" method="POST" class="w-full">
-                                @csrf
-                                <button type="submit" class="w-full bg-yellow-500 text-white hover:bg-yellow-600 font-bold py-2 px-4 rounded transition flex items-center justify-center gap-2 shadow-md mb-4">
-                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                    <span>Aktifkan Semula (10 Minit)</span>
-                                </button>
-                            </form>
-                        @endif
+                        {{-- BUTTON RE-ACTIVATE (SENTIASA MUNCUL TANPA SYARAT IF) --}}
+                        <form action="{{ route('activities.reactivate', $meeting->id) }}" method="POST" class="w-full">
+                            @csrf
+                            <button type="submit" class="w-full bg-yellow-500 text-white hover:bg-yellow-600 font-bold py-2 px-4 rounded transition flex items-center justify-center gap-2 shadow-md mb-4">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <span>Aktifkan Semula (10 Minit)</span>
+                            </button>
+                        </form>
 
                         <button onclick="window.print()" class="w-full bg-gray-800 text-white font-bold py-2 px-4 rounded hover:bg-gray-900 transition flex items-center justify-center gap-2">
                             <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>

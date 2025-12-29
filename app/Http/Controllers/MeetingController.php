@@ -282,10 +282,10 @@ class MeetingController extends Controller
     // 11. Fungsi Aktifkan Semula (Re-activate)
     public function reactivate(Meeting $meeting)
     {
-        // lanjutkan masa tamat sebanyak 10 minit dari sekarang
+        // lanjutkan masa tamat sebanyak 15 minit dari sekarang
         $meeting->update([
-            'end_time' => now()->addMinutes(10)->format('H:i:s'),
-            'status' => 'upcoming' // Paksa status jadi aktif
+            'end_time' => now()->addMinutes(15)->format('H:i:s'),
+            'status' => 'upcoming' 
         ]);
 
         return redirect()->back()->with('success', 'Kod QR diaktifkan semula selama 10 minit.');
