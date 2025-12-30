@@ -52,6 +52,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/staff/{user}/report', [StaffController::class, 'report'])->name('staff.report');
     Route::get('/activities/{meeting}/report', [MeetingController::class, 'report'])->name('activities.report');
     Route::get('/activities/{meeting}/report/view', [MeetingController::class, 'viewReport'])->name('activities.report.view');
+    Route::get('/activities/report', [MeetingController::class, 'janaLaporan'])->name('activities.report');
 
     // Route Sejarah Kehadiran Saya (Baru Tambah)
     Route::get('/attendance/history', [AttendanceController::class, 'history'])->name('attendance.history');
@@ -59,13 +60,11 @@ Route::middleware('auth')->group(function () {
 
 // 4. ROUTE KEHADIRAN (PUBLIC - Boleh diakses Guest & Staf tanpa login session browser)
 // Scan & Store diletak di luar 'auth' middleware supaya 'Peserta Luar' boleh akses.
-
-// Route untuk scan QR
+// Route scan QR
 Route::get('/attendance/scan/{meeting}/{code}', [AttendanceController::class, 'scan'])->name('attendance.scan');
 
 // Route untuk simpan kehadiran (PENTING: Saya buang {meeting} sebab ID dihantar via hidden input)
 Route::post('/attendance/store', [AttendanceController::class, 'store'])->name('attendance.store');
-
 
 // 5. Utiliti Lain
 // Route Tukar Bahasa (EN / MS)

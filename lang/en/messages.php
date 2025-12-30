@@ -53,6 +53,8 @@ return [
     'no_activities_found' => 'No activities found.',
     'search_placeholder' => 'Search activities...',
 
+    'generate_report' => 'Generate PDF',
+
     // Days (Short)
     'days' => [
         'sun' => 'Sun',
@@ -93,7 +95,7 @@ return [
     'start_time_label' => 'Start Time *',
     'end_time_label' => 'End Time *',
     'venue_label' => 'Venue *',
-    'type_label' => 'Activity Type',
+    'type_label' => 'Activity Type*',
     'organizer_label' => 'Organizer *',
     'invitation_section' => 'Participant Invitation',
     'select_staff' => 'Select Staff (Internal)',
@@ -121,7 +123,7 @@ return [
     'scan_instruction' => 'Please scan the QR code below using an application to confirm attendance.',
     'print_qr' => 'Print QR',
     'view_report' => 'View Report',
-    'download_report' => 'Download PDF',
+    'download_report' => 'Generate PDF',
     'qr_hidden_title' => 'QR Code Hidden',
     'qr_hidden_desc' => 'Please attend the venue and scan the QR code displayed by the organizer on the event day.',
     'simulation_link' => 'Simulate QR Scan (Click Here)',

@@ -140,7 +140,7 @@ class MeetingController extends Controller
                     try {
                         Mail::to($user->email)->send(new MeetingInvitation($meeting));
                     } catch (\Exception $e) {
-                        // Log error jika email gagal, tapi jangan stop sistem
+                        // Log error jika email gagal
                     }
                 }
             }
@@ -304,5 +304,48 @@ class MeetingController extends Controller
 
         // 4. Paparkan di browser (Stream)
         return $pdf->stream('Laporan-' . Str::slug($meeting->title) . '.pdf');
+    }
+
+    public function janaLaporan(Request $request)
+    {
+   
+       $query = Meeting::query(); 
+
+       // 2. Logic Filter: Tahun (Year)
+       if ($request->filled('year')) {
+          $query->whereYear('date', $request->year); // Pastikan column db nama 'date'
+       }
+
+       // 3. Logic Filter: Bulan (Month)
+       if ($request->filled('month')) {
+        $query->whereMonth('date', $request->month);
+       }
+
+       // 4. Logic Filter: Search (Cari)
+       if ($request->filled('search')) {
+           $search = $request->search;
+           $query->where(function($q) use ($search) {
+               $q->where('title', 'LIKE', "%{$search}%")
+                 ->orWhere('venue', 'LIKE', "%{$search}%");
+            });
+        }
+
+       $user = Auth::user();
+    
+       if ($user->role !== 'admin') { 
+
+           $query->where('user_id', $user->id); 
+        }
+
+       // 6. Dapatkan Data
+       $meetings = $query->orderBy('date', 'desc')->get();
+
+       // 7. Generate PDF
+       $pdf = PDF::loadView('activities.pdf_report', compact('meetings', 'request'));
+    
+       // Set orientasi landscape jika table panjang
+       $pdf->setPaper('a4', 'landscape');
+
+       return $pdf->stream('Laporan_Aktiviti.pdf'); // Guna 'download' jika nak terus download
     }
 }

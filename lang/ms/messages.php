@@ -53,6 +53,8 @@ return [
     'no_activities_found' => 'Tiada aktiviti dijumpai.',
     'search_placeholder' => 'Cari aktiviti...',
 
+    'generate_report' => 'Jana PDF',
+
     // Hari (Singkatan)
     'days' => [
         'sun' => 'Aha',
@@ -120,7 +122,7 @@ return [
     'scan_instruction' => 'Sila imbas kod QR di bawah menggunakan aplikasi untuk mengesahkan kehadiran.',
     'print_qr' => 'Cetak QR',
     'view_report' => 'Lihat Laporan',
-    'download_report' => 'Muat Turun PDF',
+    'download_report' => 'Jana PDF',
     'qr_hidden_title' => 'Kod QR Disembunyikan',
     'qr_hidden_desc' => 'Sila hadir ke lokasi dan imbas kod QR yang dipaparkan oleh penganjur pada hari kejadian.',
     'simulation_link' => 'Simulasi Imbas QR (Klik Sini)',
@@ -148,7 +150,7 @@ return [
     // Rekod Staf (Admin View)
     'attendance_record_for' => 'Rekod Kehadiran: :name',
     'back_to_staff_list' => 'Kembali ke Senarai',
-    'download_record_pdf' => 'Muat Turun Rekod (PDF)',
+    'download_record_pdf' => 'Jana PDF',
     'total_invitations' => 'Jumlah Jemputan',
     'activities_count' => ':count Aktiviti',
     'no_participation_found' => 'Tiada rekod penyertaan dijumpai.',
