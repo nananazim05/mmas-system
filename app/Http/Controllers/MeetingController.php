@@ -338,7 +338,7 @@ class MeetingController extends Controller
         }
 
        // 6. Dapatkan Data
-       $meetings = $query->orderBy('date', 'desc')->get();
+       $meetings = $query->orderBy('date', 'asc')->get();
 
        // 7. Generate PDF
        $pdf = PDF::loadView('meetings.activity_summary_pdf', compact('meetings', 'request'));

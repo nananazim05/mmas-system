@@ -2,72 +2,88 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>Laporan Senarai Aktiviti</title>
+    <title>Laporan Aktiviti</title>
     <style>
-        /* --- CSS UNTUK PDF (DomPDF) --- */
         body {
             font-family: Arial, sans-serif;
-            font-size: 12px;
-            color: #000;
+            font-size: 11px;
+            color: #333;
         }
         
-        /* Header Laporan */
-        .header {
+        /* HEADER STYLE (Ikut contoh gambar) */
+        .header-container {
             text-align: center;
-            margin-bottom: 25px;
-            border-bottom: 2px solid #000;
-            padding-bottom: 10px;
-        }
-        .header h1 {
-            margin: 0;
-            font-size: 18px;
-            text-transform: uppercase;
-            font-weight: bold;
-        }
-        .header h2 {
-            margin: 5px 0 0 0;
-            font-size: 14px;
-            font-weight: normal;
-        }
-        
-        /* Info Filter (Metadata) */
-        .info-section {
-            width: 100%;
             margin-bottom: 20px;
         }
+        .header-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #B6192E; /* Merah MTIB */
+            text-transform: uppercase;
+            margin: 0;
+        }
+        .header-subtitle {
+            font-size: 10px;
+            color: #555;
+            margin-top: 5px;
+        }
+        .red-line {
+            border-bottom: 2px solid #B6192E;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        /* INFO BOX */
         .info-table {
             width: 100%;
-            border: none;
+            margin-bottom: 15px;
+            font-size: 11px;
         }
-        .info-table td {
-            padding: 2px;
-            vertical-align: top;
+        .info-label {
+            font-weight: bold;
+            width: 120px;
         }
-        .text-right { text-align: right; }
-        .font-bold { font-weight: bold; }
 
-        /* Jadual Data Utama */
-        table.main-table {
+        /* JADUAL DATA UTAMA */
+        table.data-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 10px;
         }
-        table.main-table th, table.main-table td {
-            border: 1px solid #000; /* Border hitam penuh */
-            padding: 6px;
+        table.data-table th {
+            background-color: #B6192E; 
+            color: white; /* Tulisan Putih */
+            padding: 8px;
             text-align: left;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 10px;
+            border: 1px solid #B6192E;
+        }
+        table.data-table td {
+            padding: 8px;
+            border: 1px solid #ddd; 
             vertical-align: top;
         }
-        table.main-table th {
-            background-color: #e0e0e0; /* Kelabu cair untuk header */
-            text-transform: uppercase;
-            font-size: 11px;
-            font-weight: bold;
-            text-align: center;
-        }
-        /* Belang-belang (Striped rows) */
-        table.main-table tr:nth-child(even) {
+        /* Belang-belang */
+        table.data-table tr:nth-child(even) {
             background-color: #f9f9f9;
+        }
+
+        /* STATUS COLORS (Untuk Staf) */
+        .status-hadir {
+            color: #008000; /* Hijau */
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .status-tidak {
+            color: #B6192E; /* Merah */
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .status-belum {
+            color: #777; /* Kelabu */
+            font-style: italic;
         }
 
         .footer {
@@ -75,107 +91,115 @@
             bottom: 0;
             left: 0;
             right: 0;
-            font-size: 10px;
+            font-size: 9px;
             text-align: center;
-            color: #555;
-            padding-top: 10px;
-            border-top: 1px solid #aaa;
-        }
-        
-        .page-number:before {
-            content: "Muka Surat " counter(page);
+            color: #999;
+            border-top: 1px solid #eee;
+            padding-top: 5px;
         }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>
+    <div class="header-container">
+        <div class="header-title">
             Laporan Senarai Aktiviti
-            @if($request->year && $request->month)
-                ({{ \Carbon\Carbon::create(null, $request->month, 1)->translatedFormat('F') }} {{ $request->year }})
-            
-            @elseif($request->year)
+            @if($request->year)
                 ({{ $request->year }})
-                
-            @elseif($request->month)
-                 ({{ \Carbon\Carbon::create(null, $request->month, 1)->translatedFormat('F') }})
             @endif
-        </h1>
-        <h2>Lembaga Perindustrian Kayu Malaysia (MTIB)</h2>
+        </div>
+        <div class="header-subtitle">
+            Sistem MMAS - Lembaga Perindustrian Kayu Malaysia (MTIB)
+        </div>
+        <div class="red-line"></div>
     </div>
 
-    <div class="info-section">
-        <table class="info-table">
-            <tr>
-                <td width="60%">
-                    <span class="font-bold">Dijana Oleh:</span> {{ Auth::user()->name }} <br>
-                    <span class="font-bold">Tarikh Laporan:</span> {{ now()->format('d/m/Y, h:i A') }}
-                </td>
-                <td width="40%" class="text-right">
-                    @if($request->year)
-                        <span class="font-bold">Tahun:</span> {{ $request->year }} <br>
-                    @endif
-                    
-                    @if($request->month)
-                        <span class="font-bold">Bulan:</span> {{ \Carbon\Carbon::create(null, $request->month, 1)->translatedFormat('F') }} <br>
-                    @endif
+    <table class="info-table">
+        <tr>
+            <td class="info-label">Nama:</td>
+            <td>{{ Auth::user()->name }}</td>
+            <td class="info-label" style="text-align: right;">Tarikh Laporan:</td>
+            <td style="text-align: right; width: 120px;">{{ now()->format('d/m/Y') }}</td>
+        </tr>
+        <tr>
+            <td class="info-label">E-mel:</td>
+            <td>{{ Auth::user()->email }}</td>
+            <td class="info-label" style="text-align: right;">Masa:</td>
+            <td style="text-align: right;">{{ now()->format('h:i A') }}</td>
+        </tr>
+    </table>
 
-                    @if($request->search)
-                        <span class="font-bold">Carian:</span> "{{ $request->search }}"
-                    @endif
-
-                    @if(!$request->year && !$request->month && !$request->search)
-                        <span class="font-bold">Paparan:</span> Semua Rekod
-                    @endif
-                </td>
-            </tr>
-        </table>
-    </div>
-
-    <table class="main-table">
+    <table class="data-table">
         <thead>
             <tr>
-                <th width="5%">No.</th>
+                <th width="5%" style="text-align: center;">Bil</th>
                 <th width="35%">Tajuk Aktiviti</th>
-                <th width="20%">Tarikh & Masa</th>
-                <th width="25%">Tempat / Penganjur</th>
-                <th width="15%">Jenis</th>
+                <th width="25%">Tarikh & Tempat</th>
+                <th width="20%">Penganjur</th>
+                
+                @if(Auth::user()->role !== 'admin')
+                    <th width="15%">Status</th>
+                @endif
             </tr>
         </thead>
         <tbody>
             @forelse($meetings as $index => $meeting)
                 <tr>
-                    <td style="text-align: center;">{{ $index + 1 }}</td>
+                    <td style="text-align: center;">{{ $loop->iteration }}</td>
+                    
                     <td>
-                        <strong>{{ $meeting->title }}</strong>
+                        <div style="font-weight: bold; font-size: 12px;">{{ $meeting->title }}</div>
+                        <div style="font-size: 10px; color: #666; margin-top: 2px;">({{ $meeting->activity_type }})</div>
                     </td>
-                    <td style="text-align: center;">
-                        {{ $meeting->activity_type }}
-                    </td>
+
                     <td>
-                        {{ \Carbon\Carbon::parse($meeting->date)->format('d/m/Y') }} <br>
-                        <small>{{ \Carbon\Carbon::parse($meeting->start_time)->format('h:i A') }} - {{ \Carbon\Carbon::parse($meeting->end_time)->format('h:i A') }}</small>
+                        <div style="font-weight: bold;">{{ \Carbon\Carbon::parse($meeting->date)->format('d/m/Y') }}</div>
+                        <div style="font-size: 10px; margin-top: 2px;">{{ $meeting->venue }}</div>
+                        <div style="font-size: 9px; color: #666;">
+                            {{ \Carbon\Carbon::parse($meeting->start_time)->format('h:i A') }} - {{ \Carbon\Carbon::parse($meeting->end_time)->format('h:i A') }}
+                        </div>
                     </td>
+
                     <td>
-                        <div><strong>V:</strong> {{ $meeting->venue }}</div>
-                        <div style="margin-top:4px; color:#555;"><strong>Org:</strong> {{ $meeting->organizer }}</div>
+                        {{ $meeting->organizer }}
                     </td>
+
+                    @if(Auth::user()->role !== 'admin')
+                        <td>
+                            @php
+                                // Check Attendance
+                                $attendance = $meeting->attendances->where('user_id', Auth::id())->first();
+                                
+                                // Check Invitation
+                                $invitation = $meeting->invitations->where('user_id', Auth::id())->first();
+                                
+                                // Check Masa
+                                $meetingEnd = \Carbon\Carbon::parse($meeting->date . ' ' . $meeting->end_time);
+                                $isPast = now()->greaterThan($meetingEnd);
+                            @endphp
+
+                            @if($attendance)
+                                <div class="status-hadir">HADIR</div>
+                                <div style="font-size: 9px; color: #555;">{{ \Carbon\Carbon::parse($attendance->created_at)->format('h:i A') }}</div>
+                            
+                            @elseif($isPast)
+                                <div class="status-tidak">TIDAK HADIR</div>
+                            
+                            @else
+                                <div class="status-belum">Belum Berlangsung</div>
+                            @endif
+                        </td>
+                    @endif
                 </tr>
             @empty
                 <tr>
-                    <td colspan="5" style="text-align: center; padding: 20px;">
-                        Tiada rekod dijumpai untuk kriteria ini.
+                    <td colspan="{{ Auth::user()->role !== 'admin' ? '5' : '4' }}" style="text-align: center; padding: 20px; color: #777;">
+                        Tiada rekod aktiviti dijumpai.
                     </td>
                 </tr>
             @endforelse
         </tbody>
     </table>
-
-    <div class="footer">
-        Dicetak dari Sistem MMAS | Lembaga Perindustrian Kayu Malaysia <br>
-        <span class="page-number"></span>
-    </div>
 
 </body>
 </html>
