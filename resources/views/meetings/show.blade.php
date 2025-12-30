@@ -159,14 +159,14 @@
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: white;">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
-                                <span>Aktifkan Semula (15 Minit)</span>
+                               <span class="text-white">{{ __('messages.reactivate') }}</span>
                             </button>
                         </form>
 
-                        <button onclick="window.print()" class="w-full bg-gray-800 text-white font-bold py-2 px-4 rounded hover:bg-gray-900 transition flex items-center justify-center gap-2">
-                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                            <span class="text-white">{{ __('messages.print_qr') }}</span>
-                        </button>
+                            <a href="{{ route('activities.print_qr', $meeting->id) }}" target="_blank" class="w-full bg-gray-800 text-white font-bold py-2 px-4 rounded hover:bg-gray-900 transition flex items-center justify-center gap-2">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2-2v4h10z"/></svg>
+                                <span class="text-white">{{ __('messages.print_qr') }}</span>
+                            </a>
                         
                         <div class="flex gap-2">
                             <a href="{{ route('activities.report.view', $meeting->id) }}" target="_blank" class="w-1/2 bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 transition flex items-center justify-center gap-2">

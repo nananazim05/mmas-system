@@ -36,6 +36,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/activities/create', [MeetingController::class, 'create'])->name('activities.create');
     Route::post('/activities', [MeetingController::class, 'store'])->name('activities.store');
     Route::get('/activities/{meeting}', [MeetingController::class, 'show'])->name('activities.show');
+    Route::get('/activities/{meeting}/print-qr', [MeetingController::class, 'printQr'])->name('activities.print_qr');
     
     // Edit & Delete Aktiviti
     Route::get('/activities/{meeting}/edit', [MeetingController::class, 'edit'])->name('activities.edit');

@@ -123,6 +123,7 @@ return [
     'status_label' => 'Status',
     'scan_attendance_title' => 'Imbas Kehadiran',
     'scan_instruction' => 'Sila imbas kod QR di bawah menggunakan aplikasi untuk mengesahkan kehadiran.',
+    'reactivate' => 'Aktifkan Semula (15 Minit)',
     'print_qr' => 'Cetak QR',
     'view_report' => 'Lihat Laporan',
     'download_report' => 'Jana PDF',

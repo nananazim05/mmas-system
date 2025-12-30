@@ -124,6 +124,7 @@ return [
     'status_label' => 'Status',
     'scan_attendance_title' => 'Scan Attendance',
     'scan_instruction' => 'Please scan the QR code below using an application to confirm attendance.',
+    'reactivate' => 'Reactivate (15 Minutes)',
     'print_qr' => 'Print QR',
     'view_report' => 'View Report',
     'download_report' => 'Generate PDF',

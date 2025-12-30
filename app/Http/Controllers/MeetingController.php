@@ -305,7 +305,8 @@ class MeetingController extends Controller
         // 4. Paparkan di browser (Stream)
         return $pdf->stream('Laporan-' . Str::slug($meeting->title) . '.pdf');
     }
-
+    
+    // Jana Laporan page Senarai Aktiviti
     public function janaLaporan(Request $request)
     {
         $user = Auth::user();
@@ -351,5 +352,36 @@ class MeetingController extends Controller
         $pdf->setPaper('a4', 'portrait');
 
         return $pdf->stream('Laporan_Senarai_Aktiviti.pdf');
+    }
+
+    // Function untuk Print QR
+    public function printQr(Meeting $meeting)
+    {
+        // 1. Kira Waktu Tamat
+        $meetingEnd = \Carbon\Carbon::parse($meeting->date . ' ' . $meeting->end_time);
+        
+        // 2. Semak Adakah Sudah Tamat?
+        $isExpired = now()->greaterThan($meetingEnd);
+        
+        // 3. Semak Adakah Diaktifkan Semula (Cache 15 minit)?
+        $isReactivated = Cache::has('meeting_extended_' . $meeting->id);
+
+        $qrCode = null;
+
+        // LOGIK: Tunjuk QR hanya jika (Belum Tamat) ATAU (Sudah Tamat TAPI Diaktifkan Semula)
+        if (!$isExpired || $isReactivated) {
+            
+            // Jana URL untuk scan
+            $url = route('attendance.scan', [
+                'meeting' => $meeting->id, 
+                'code' => $meeting->qr_code_string
+            ]);
+            
+            // Jana imej QR
+            $qrCode = \SimpleSoftwareIO\QrCode\Facades\QrCode::size(400)->generate($url);
+        }
+
+        // Hantar ke view print
+        return view('meetings.print_qr', compact('meeting', 'qrCode', 'isExpired', 'isReactivated'));
     }
 }
