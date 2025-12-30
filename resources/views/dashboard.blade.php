@@ -93,13 +93,12 @@
                                 $isToday = $checkDate == now()->format('Y-m-d');
                                 $hasMeeting = in_array($checkDate, $tarikhMeeting);
 
-                                // Cari tajuk meeting untuk Tooltip (jika ada)
-                                $meetingTitles = [];
+                                // LOGIK BARU: Tarik Data Penuh (Tajuk & Masa) untuk Tooltip
+                                $meetingsOnDay = [];
                                 if ($hasMeeting) {
-                                    $meetingsOnDay = \App\Models\Meeting::whereDate('date', $checkDate)->get();
-                                    foreach($meetingsOnDay as $m) {
-                                        $meetingTitles[] = $m->title; // Simpan tajuk aktiviti
-                                    }
+                                    $meetingsOnDay = \App\Models\Meeting::whereDate('date', $checkDate)
+                                                    ->orderBy('start_time', 'asc')
+                                                    ->get();
                                 }
                             @endphp
                             
@@ -109,12 +108,28 @@
                                 @if($hasMeeting) 
                                     <span class="absolute bottom-1 right-1 w-2 h-2 bg-red-600 rounded-full"></span> 
                                     
-                                    <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-max max-w-xs bg-black text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-50 pointer-events-none">
-                                        @foreach($meetingTitles as $title)
-                                            <div class="truncate">• {{ $title }}</div>
-                                        @endforeach
-                                        <svg class="absolute text-black h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255" xml:space="preserve"><polygon class="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
-                                    </span>
+                                    <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3 w-56 bg-white text-left text-xs rounded-lg p-3 opacity-0 group-hover:opacity-100 transition-all duration-200 z-50 pointer-events-none shadow-xl border border-gray-200">
+                                        
+                                        <div class="space-y-3 max-h-40 overflow-y-auto custom-scrollbar">
+                                            @foreach($meetingsOnDay as $m)
+                                                <div class="flex items-start pl-2 border-l-4 border-red-500">
+                                                    <div>
+                                                        <div class="font-bold text-gray-800 text-sm leading-tight">
+                                                            {{ $m->title }}
+                                                        </div>
+                                                        <div class="text-[10px] text-gray-500 mt-1 flex items-center font-medium">
+                                                            <svg class="w-3 h-3 mr-1 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                                            {{ \Carbon\Carbon::parse($m->start_time)->format('h:i A') }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+
+                                        <div class="absolute top-full left-1/2 transform -translate-x-1/2 -mt-[1px]">
+                                            <div class="border-8 border-transparent border-t-white drop-shadow-sm"></div>
+                                        </div>
+                                    </div>
                                 @endif
                             </div>
                         @endfor
