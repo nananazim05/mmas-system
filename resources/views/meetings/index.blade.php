@@ -14,7 +14,7 @@
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                         </div>
-                        <input type="text" id="globalSearchInput" 
+                        <input type="text" id="globalSearchInput" name="search" value="{{ request('search') }}"
                                class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-[#B6192E] focus:border-[#B6192E] sm:text-sm" 
                                placeholder="{{ __('messages.search_placeholder') }}">
                     </div>
@@ -41,16 +41,18 @@
                         {{ __('messages.filter_btn') }}
                     </button>
 
-                    @if(request('month') || request('year'))
+                    @if(request('search') || request('month') || request('year'))
                         <a href="{{ route('activities.index') }}" class="px-4 py-2 bg-gray-200 text-gray-700 font-bold rounded-lg hover:bg-gray-300 transition text-sm flex items-center justify-center">
                             {{ __('messages.reset_btn') }}
                         </a>
                     @endif
                 </div>
 
-                <a href="{{ route('activities.create') }}" class="w-full md:w-auto px-4 py-2 bg-[#B6192E] text-white font-bold rounded-lg hover:bg-[#900000] shadow-md transition flex items-center justify-center text-sm whitespace-nowrap">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                    {{ __('messages.create_activity') }}
+                <a href="{{ route('activities.summary_report', request()->query()) }}" target="_blank" class="w-full md:w-auto px-4 py-2 bg-[#B6192E] text-white font-bold rounded-lg hover:bg-[#900000] shadow-md transition flex items-center justify-center text-sm whitespace-nowrap">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    {{ __('messages.generate_report') }}
                 </a>
 
             </form>

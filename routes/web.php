@@ -52,7 +52,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/staff/{user}/report', [StaffController::class, 'report'])->name('staff.report');
     Route::get('/activities/{meeting}/report', [MeetingController::class, 'report'])->name('activities.report');
     Route::get('/activities/{meeting}/report/view', [MeetingController::class, 'viewReport'])->name('activities.report.view');
-    Route::get('/activities/report', [MeetingController::class, 'janaLaporan'])->name('activities.report');
+    Route::get('/activities/summary-report', [MeetingController::class, 'janaLaporan'])->name('activities.summary_report');
 
     // Route Sejarah Kehadiran Saya (Baru Tambah)
     Route::get('/attendance/history', [AttendanceController::class, 'history'])->name('attendance.history');
