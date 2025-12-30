@@ -150,7 +150,7 @@ return [
     // Rekod Staf (Admin View)
     'attendance_record_for' => 'Rekod Kehadiran: :name',
     'back_to_staff_list' => 'Kembali ke Senarai',
-    'download_record_pdf' => 'Jana PDF',
+    'download_record_pdf' => 'Jana rekod PDF',
     'total_invitations' => 'Jumlah Jemputan',
     'activities_count' => ':count Aktiviti',
     'no_participation_found' => 'Tiada rekod penyertaan dijumpai.',

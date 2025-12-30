@@ -151,7 +151,7 @@ return [
     // Staff Record (Admin View)
     'attendance_record_for' => 'Attendance Record: :name',
     'back_to_staff_list' => 'Back to List',
-    'download_record_pdf' => 'Download Record (PDF)',
+    'download_record_pdf' => 'Download Record PDF',
     'total_invitations' => 'Total Invitations',
     'activities_count' => ':count Activities',
     'no_participation_found' => 'No participation records found.',

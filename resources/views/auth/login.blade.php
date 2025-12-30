@@ -24,7 +24,7 @@
                     <img src="{{ asset('images/logo-mmas.png') }}" alt="MMAS Logo" class="h-20 sm:h-24 w-auto mb-4 drop-shadow-md">
                     
                     <h1 class="text-2xl sm:text-3xl font-extrabold text-[#7F0000] tracking-tight text-center">MMAS</h1>
-                    <p class="text-gray-800 text-xs sm:text-sm font-medium mt-1 text-center">MTIB Meeting Attendance System</p>
+                    <p class="text-gray-800 text-xs sm:text-sm font-medium mt-1 text-center">MTIB Multi-Event Attendance System</p>
                 </div>
 
                 <x-auth-session-status class="mb-4" :status="session('status')" />

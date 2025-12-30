@@ -341,7 +341,7 @@ class MeetingController extends Controller
        $meetings = $query->orderBy('date', 'desc')->get();
 
        // 7. Generate PDF
-       $pdf = PDF::loadView('activity_summary_pdf', compact('meetings', 'request'));
+       $pdf = PDF::loadView('meetings.activity_summary_pdf', compact('meetings', 'request'));
     
        // Set orientasi landscape jika table panjang
        $pdf->setPaper('a4', 'landscape');
