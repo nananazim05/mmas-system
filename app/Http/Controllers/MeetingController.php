@@ -308,44 +308,48 @@ class MeetingController extends Controller
 
     public function janaLaporan(Request $request)
     {
-   
-       $query = Meeting::query(); 
+        $user = Auth::user();
+        $query = Meeting::query();
 
-       // 2. Logic Filter: Tahun (Year)
-       if ($request->filled('year')) {
-          $query->whereYear('date', $request->year); // Pastikan column db nama 'date'
-       }
-
-       // 3. Logic Filter: Bulan (Month)
-       if ($request->filled('month')) {
-        $query->whereMonth('date', $request->month);
-       }
-
-       // 4. Logic Filter: Search (Cari)
-       if ($request->filled('search')) {
-           $search = $request->search;
-           $query->where(function($q) use ($search) {
-               $q->where('title', 'LIKE', "%{$search}%")
-                 ->orWhere('venue', 'LIKE', "%{$search}%");
+        // 1. LOGIK AKSES (Admin vs Staf) 
+        if ($user->role !== 'admin') {
+            $query->where(function($q) use ($user) {
+                $q->where('creator_id', $user->id) 
+                  ->orWhereHas('invitations', function($subQ) use ($user) {
+                      $subQ->where('user_id', $user->id);
+                  });
             });
         }
 
-       $user = Auth::user();
-    
-       if ($user->role !== 'admin') { 
-
-           $query->where('user_id', $user->id); 
+        // 2. LOGIK CARIAN (Search)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'LIKE', "%{$search}%")       
+                  ->orWhere('venue', 'LIKE', "%{$search}%")     
+                  ->orWhere('organizer', 'LIKE', "%{$search}%") 
+                  ->orWhere('activity_type', 'LIKE', "%{$search}%"); 
+            });
         }
 
-       // 6. Dapatkan Data
-       $meetings = $query->orderBy('date', 'asc')->get();
+        // 3. LOGIK BULAN (Filter)
+        if ($request->filled('month')) {
+            $query->whereMonth('date', $request->month);
+        }
 
-       // 7. Generate PDF
-       $pdf = PDF::loadView('meetings.activity_summary_pdf', compact('meetings', 'request'));
-    
-       // Set orientasi landscape jika table panjang
-       $pdf->setPaper('a4', 'landscape');
+        // 4. LOGIK TAHUN (Filter)
+        if ($request->filled('year')) {
+            $query->whereYear('date', $request->year);
+        }
 
-       return $pdf->stream('Laporan_Aktiviti.pdf'); // Guna 'download' jika nak terus download
+        // 5. DAPATKAN DATA (Disusun Mengikut Tarikh Awal -> Akhir)
+        $meetings = $query->orderBy('date', 'asc')->get();
+
+        // 6. GENERATE PDF
+        $pdf = Pdf::loadView('meetings.activity_summary_pdf', compact('meetings', 'request'));
+        
+        $pdf->setPaper('a4', 'portrait');
+
+        return $pdf->stream('Laporan_Senarai_Aktiviti.pdf');
     }
 }

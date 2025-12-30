@@ -117,7 +117,7 @@ class StaffController extends Controller
                             $q->where('user_id', $user->id);
                         }])
                         ->get()
-                        ->sortByDesc(function($invitation) {
+                        ->sortByAsc(function($invitation) {
                             return $invitation->meeting->date;
                         });
 
@@ -135,7 +135,7 @@ class StaffController extends Controller
                             $q->where('user_id', $user->id);
                         }])
                         ->get()
-                        ->sortByDesc(function($invitation) {
+                        ->sortByAsc(function($invitation) {
                             return $invitation->meeting->date;
                         });
 
