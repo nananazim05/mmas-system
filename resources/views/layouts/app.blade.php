@@ -63,10 +63,15 @@
                  :class="(sidebarExpanded || (sidebarHovered && !forceClose)) ? 'p-6' : 'p-2 py-4 text-center'">
                 
                 <div x-show="sidebarExpanded || (sidebarHovered && !forceClose)" x-transition.opacity.duration.200ms>
-                    <p class="text-xs text-white/60 uppercase tracking-wider mb-1">Log Masuk Sebagai</p>
-                    <p class="font-bold text-lg truncate">{{ Auth::user()->name }}</p>
-                    <p class="text-xs text-white/80 capitalize mb-3">{{ Auth::user()->role }}</p>
-                    
+                    <p class="text-xs text-white/60 uppercase tracking-wider mb-1">{{ __('messages.logged_in_as') }}</p>
+                    <p class="font-bold text-lg whitespace-normal break-words leading-tight">{{ Auth::user()->name }}</p>
+                    <p class="text-xs text-white/80 uppercase mt-1 mb-3 font-semibold text-yellow-400">
+                        @if(Auth::user()->role === 'admin')
+                           {{ __('messages.admin') }}
+                        @else
+                           {{ __('messages.staff') }}
+                        @endif
+                    </p>
                     <div class="flex justify-center space-x-2 text-xs font-bold">
                         <a href="{{ route('change.lang', 'ms') }}" class="{{ app()->getLocale() == 'ms' ? 'text-yellow-300 underline' : 'text-white/50 hover:text-white' }}">BM</a>
                         <span class="text-white/30">|</span>

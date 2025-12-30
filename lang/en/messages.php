@@ -8,6 +8,9 @@ return [
     'my_profile' => 'My Profile',
     'attendance_record' => 'Attendance Record',
     'logout' => 'Log Out',
+    'logged_in_as' => 'Logged In As',
+    'admin' => 'Admin',
+    'staff' => 'Staff',
 
     // Dashboard
     'total_activities' => 'Total Activities',
@@ -112,7 +115,7 @@ return [
     // Type Options
     'meeting' => 'Meeting',
     'workshop' => 'Workshop',
-    'course' => 'Course',
+    'training' => 'Training',
     'others' => 'Others',
 
     // Activity Details

@@ -55,7 +55,7 @@
                             <select name="activity_type" class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-[#B6192E] focus:border-[#B6192E]">
                                 <option value="Mesyuarat">{{ __('messages.meeting') }}</option>
                                 <option value="Bengkel">{{ __('messages.workshop') }}</option>
-                                <option value="Kursus">{{ __('messages.course') }}</option>
+                                <option value="Latihan">{{ __('messages.training') }}</option>
                                 <option value="Lain-lain">{{ __('messages.others') }}</option>
                             </select>
                         </div>

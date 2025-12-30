@@ -2,12 +2,15 @@
 return [
     // Sidebar
     'dashboard' => 'Laman Utama',
-    'my_activities' => 'Anjuran Saya',
+    'my_activities' => 'Aktiviti Saya',
     'activity_list' => 'Senarai Aktiviti',
     'staff_profile' => 'Profil Staf',
     'my_profile' => 'Profil Saya',
     'attendance_record' => 'Rekod Kehadiran',
     'logout' => 'Log Keluar',
+    'logged_in_as' => 'Log Masuk Sebagai',
+    'admin' => 'Admin',
+    'staff' => 'Staf',
     
     // Dashboard
     'total_activities' => 'Jumlah Aktiviti',
@@ -111,7 +114,7 @@ return [
     // Pilihan Jenis
     'meeting' => 'Mesyuarat',
     'workshop' => 'Bengkel',
-    'course' => 'Kursus',
+    'training' => 'Latihan',
     'others' => 'Lain-lain',
 
     // Butiran Aktiviti

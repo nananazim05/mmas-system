@@ -56,20 +56,18 @@
                             <select name="activity_type" class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-[#B6192E] focus:border-[#B6192E]">
                                 <option value="Mesyuarat" {{ old('activity_type', $meeting->activity_type) == 'Mesyuarat' ? 'selected' : '' }}>{{ __('messages.meeting') }}</option>
                                 <option value="Bengkel" {{ old('activity_type', $meeting->activity_type) == 'Bengkel' ? 'selected' : '' }}>{{ __('messages.workshop') }}</option>
-                                <option value="Kursus" {{ old('activity_type', $meeting->activity_type) == 'Kursus' ? 'selected' : '' }}>{{ __('messages.course') }}</option>
+                                <option value="Latihan" {{ old('activity_type', $meeting->activity_type) == 'Latihan' ? 'selected' : '' }}>{{ __('messages.training') }}</option>
                                 <option value="Lain-lain" {{ old('activity_type', $meeting->activity_type) == 'Lain-lain' ? 'selected' : '' }}>{{ __('messages.others') }}</option>
                             </select>
                         </div>
 
                         <div>
                             <label class="block text-gray-700 text-sm font-bold mb-2">{{ __('messages.organizer_label') }}</label>
-                            <select name="organizer_id" class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-[#B6192E] focus:border-[#B6192E]">
-                                @foreach($users as $user)
-                                    <option value="{{ $user->id }}" {{ old('organizer_id', $meeting->organizer_id) == $user->id ? 'selected' : '' }}>
-                                        {{ $user->name }}
-                                    </option>
-                                @endforeach
-                            </select>
+                            <input type="text" 
+                                   name="organizer" 
+                                   value="{{ old('organizer', $meeting->organizer) }}" 
+                                   class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-[#B6192E] focus:border-[#B6192E]"
+                                   required>
                         </div>
                     </div>
 
