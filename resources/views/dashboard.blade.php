@@ -36,7 +36,7 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
-            <div class="lg:col-span-2 bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+            <div class="lg:col-span-2 bg-white overflow-visible shadow-sm sm:rounded-lg p-6">
                 
                 <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-2">
                     <h3 class="text-lg font-bold text-gray-800 uppercase hidden sm:block">
@@ -109,7 +109,7 @@
                                 @if($hasMeeting) 
                                     <span class="absolute bottom-1 right-1 w-2 h-2 bg-red-600 rounded-full"></span> 
                                     
-                                    <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-max max-w-xs bg-black text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 pointer-events-none">
+                                    <span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-max max-w-xs bg-black text-white text-xs rounded py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-50 pointer-events-none">
                                         @foreach($meetingTitles as $title)
                                             <div class="truncate">• {{ $title }}</div>
                                         @endforeach
