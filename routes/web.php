@@ -30,6 +30,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Pengurusan Aktiviti (CRUD)
+    Route::get('/activities/summary-report', [MeetingController::class, 'janaLaporan'])->name('activities.summary_report');
     Route::get('/activities/my', [MeetingController::class, 'myActivities'])->name('activities.my');
     Route::get('/activities', [MeetingController::class, 'index'])->name('activities.index');
     Route::get('/activities/create', [MeetingController::class, 'create'])->name('activities.create');
@@ -52,7 +53,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/staff/{user}/report', [StaffController::class, 'report'])->name('staff.report');
     Route::get('/activities/{meeting}/report', [MeetingController::class, 'report'])->name('activities.report');
     Route::get('/activities/{meeting}/report/view', [MeetingController::class, 'viewReport'])->name('activities.report.view');
-    Route::get('/activities/summary-report', [MeetingController::class, 'janaLaporan'])->name('activities.summary_report');
+    
 
     // Route Sejarah Kehadiran Saya (Baru Tambah)
     Route::get('/attendance/history', [AttendanceController::class, 'history'])->name('attendance.history');
