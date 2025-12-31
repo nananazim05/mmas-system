@@ -204,6 +204,7 @@ class MeetingController extends Controller
     // 7. Update Data
     public function update(Request $request, Meeting $meeting)
     {
+        // A. VALIDASI
         $request->validate([
             'title' => 'required|string|max:255',
             'date' => 'required|date',
@@ -213,20 +214,47 @@ class MeetingController extends Controller
             'activity_type' => 'required|string',
         ]);
 
+        // B. KEMASKINI DATA
         $meeting->update($request->all());
 
-        // Hantar E-mel Update
-        foreach ($meeting->invitations as $invite) {
-            if ($invite->user_id) {
-                $user = User::find($invite->user_id);
-                if ($user && $user->email) Mail::to($user->email)->send(new MeetingUpdated($meeting));
-            } elseif ($invite->guest_email) {
-                Mail::to($invite->guest_email)->send(new MeetingUpdated($meeting));
+        // 1. Kira Waktu Tamat (Berdasarkan data yang baru diupdate)
+        $meetingEnd = \Carbon\Carbon::parse($meeting->date . ' ' . $meeting->end_time);
+    
+        // 2. Check: Adakah aktiviti sudah lepas?
+        $isPast = now()->greaterThan($meetingEnd);
+
+        // C. HANTAR E-MEL UPDATE 
+        if (!$isPast) {
+            foreach ($meeting->invitations as $invite) {
+                // Hantar kepada Staf
+                if ($invite->user_id) {
+                    $user = User::find($invite->user_id);
+                    if ($user && $user->email) {
+                        try {
+                            Mail::to($user->email)->send(new MeetingUpdated($meeting));
+                        } catch (\Exception $e) {
+                            // Log error
+                        }
+                    }
+               } 
+                // Hantar kepada Peserta Luar
+                elseif ($invite->guest_email) {
+                    try {
+                        Mail::to($invite->guest_email)->send(new MeetingUpdated($meeting));
+                    } catch (\Exception $e) {
+                        // Log error
+                    }
+                }
             }
         }
 
-        return redirect()->route('activities.my')->with('success', 'Aktiviti dikemaskini.');
-    }
+        // D. MESEJ
+        if ($isPast) {
+            return redirect()->route('activities.my')->with('success', 'Aktiviti dikemaskini.');
+        } else {
+            return redirect()->route('activities.my')->with('success', 'Aktiviti dikemaskini.');
+        }
+   }
 
     // 8. Padam Data (Destroy)
     public function destroy(Meeting $meeting)
