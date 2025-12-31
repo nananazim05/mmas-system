@@ -91,50 +91,56 @@ class MeetingController extends Controller
 
     // 4. Simpan Data (Store)
     public function store(Request $request)
-    {
-        // A. VALIDASI
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'date' => 'required|date',
-            'start_time' => 'required',
-            'end_time' => 'required|after:start_time',
-            'venue' => 'required|string',
-            'activity_type' => 'required|string',
-            'organizer' => 'required|string|max:255', 
-            'invited_staff' => 'required_without:guest_emails',
-            'guest_emails' => 'required_without:invited_staff',
-        ], [
-            'invited_staff.required_without' => 'Sila pilih sekurang-kurangnya seorang Staf atau masukkan E-mel Peserta Luar.',
-            'guest_emails.required_without' => 'Sila pilih sekurang-kurangnya seorang Staf atau masukkan E-mel Peserta Luar.',
-            'end_time.after' => 'Masa tamat mestilah selepas masa mula.',
-        ]);
+ {
+    // A. VALIDASI
+    $request->validate([
+        'title' => 'required|string|max:255',
+        'date' => 'required|date',
+        'start_time' => 'required',
+        'end_time' => 'required|after:start_time',
+        'venue' => 'required|string',
+        'activity_type' => 'required|string',
+        'organizer' => 'required|string|max:255', 
+        'invited_staff' => 'required_without:guest_emails',
+        'guest_emails' => 'required_without:invited_staff',
+    ], [
+        'invited_staff.required_without' => 'Sila pilih sekurang-kurangnya seorang Staf atau masukkan E-mel Peserta Luar.',
+        'guest_emails.required_without' => 'Sila pilih sekurang-kurangnya seorang Staf atau masukkan E-mel Peserta Luar.',
+        'end_time.after' => 'Masa tamat mestilah selepas masa mula.',
+    ]);
 
-        // B. SIMPAN KE DATABASE
-        $meeting = Meeting::create([
-            'title' => $request->title,
-            'date' => $request->date,
-            'start_time' => $request->start_time,
-            'end_time' => $request->end_time,
-            'venue' => $request->venue,
-            'activity_type' => $request->activity_type,
-            'organizer' => $request->organizer, 
-            
-            'creator_id' => Auth::id(), // Simpan ID staf yang login
-            
-            'qr_code_string' => Str::random(32),
-            'status' => 'upcoming', 
-        ]);
+    // B. SIMPAN KE DATABASE
+    $meeting = Meeting::create([
+        'title' => $request->title,
+        'date' => $request->date,
+        'start_time' => $request->start_time,
+        'end_time' => $request->end_time,
+        'venue' => $request->venue,
+        'activity_type' => $request->activity_type,
+        'organizer' => $request->organizer, 
+        'creator_id' => Auth::id(), 
+        'qr_code_string' => Str::random(32),
+        'status' => 'upcoming', 
+    ]);
+    // Gabungkan Tarikh + Masa Tamat untuk dapat waktu sebenar aktiviti berakhir
+    $meetingEndTimestamp = \Carbon\Carbon::parse($request->date . ' ' . $request->end_time);
+    
+    // TRUE = Aktiviti dah lepas (Backdated)
+    // FALSE = Aktiviti belum lepas (Upcoming)
+    $isPast = now()->greaterThan($meetingEndTimestamp);
 
-        // C. JEMPUT STAF
-        if ($request->has('invited_staff')) {
-            foreach ($request->invited_staff as $userId) {
-                Invitation::create([
-                    'meeting_id' => $meeting->id,
-                    'user_id' => $userId,
-                    'status' => 'invited'
-                ]);
-                
-                // Hantar Email
+
+    // C. JEMPUT STAF
+    if ($request->has('invited_staff')) {
+        foreach ($request->invited_staff as $userId) {
+            Invitation::create([
+                'meeting_id' => $meeting->id,
+                'user_id' => $userId,
+                'status' => 'invited'
+            ]);
+            
+            // HANTAR E-MEL HANYA JIKA AKTIVITI BELUM LEPAS
+            if (!$isPast) {
                 $user = User::find($userId);
                 if ($user && $user->email) {
                     try {
@@ -145,20 +151,23 @@ class MeetingController extends Controller
                 }
             }
         }
+    }
 
-        // D. JEMPUT LUAR
-        if ($request->filled('guest_emails')) {
-            $emails = explode(',', $request->guest_emails);
-            foreach ($emails as $email) {
-                $email = trim($email);
-                if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                    Invitation::create([
-                        'meeting_id' => $meeting->id,
-                        'guest_email' => $email,
-                        'guest_name' => 'Peserta Luar',
-                        'status' => 'invited'
-                    ]);
-                    
+    // D. JEMPUT LUAR
+    if ($request->filled('guest_emails')) {
+        $emails = explode(',', $request->guest_emails);
+        foreach ($emails as $email) {
+            $email = trim($email);
+            if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                Invitation::create([
+                    'meeting_id' => $meeting->id,
+                    'guest_email' => $email,
+                    'guest_name' => 'Peserta Luar',
+                    'status' => 'invited'
+                ]);
+                
+                // HANTAR E-MEL HANYA JIKA AKTIVITI BELUM LEPAS
+                if (!$isPast) {
                     try {
                         Mail::to($email)->send(new MeetingInvitation($meeting));
                     } catch (\Exception $e) {
@@ -167,9 +176,14 @@ class MeetingController extends Controller
                 }
             }
         }
-
-        return redirect()->route('activities.my')->with('success', 'Aktiviti berjaya dicipta & E-mel dihantar!');
     }
+
+    if ($isPast) {
+        return redirect()->route('activities.my')->with('success', 'Aktiviti lampau berjaya dicipta.');
+    } else {
+        return redirect()->route('activities.my')->with('success', 'Aktiviti berjaya dicipta!');
+    }
+ }
 
     // 5. Papar Butiran (Show)
     public function show(Meeting $meeting)

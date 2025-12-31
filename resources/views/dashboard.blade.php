@@ -108,7 +108,7 @@
                                 @if($hasMeeting) 
                                     <span class="absolute bottom-1 right-1 w-2 h-2 bg-red-600 rounded-full"></span> 
                                     
-                                    <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3 w-70 bg-white text-left text-xs rounded-lg p-3 opacity-0 group-hover:opacity-100 transition-all duration-200 z-50 pointer-events-none shadow-xl border border-gray-200">
+                                    <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-3 w-80 bg-white text-left text-xs rounded-lg p-3 opacity-0 group-hover:opacity-100 transition-all duration-200 z-50 pointer-events-none shadow-xl border border-gray-200">
                                         
                                         <div class="space-y-3 max-h-40 overflow-y-auto custom-scrollbar">
                                             @foreach($meetingsOnDay as $m)
