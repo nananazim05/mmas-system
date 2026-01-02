@@ -42,7 +42,7 @@
 
                     <select name="year" class="border border-gray-300 rounded-lg text-sm focus:ring-[#B6192E] focus:border-[#B6192E]">
                         <option value="">{{ __('messages.year_placeholder') }}</option>
-                        @foreach(range(date('Y') - 2, date('Y') + 2) as $y)
+                        @foreach(range(date('Y') - 4, date('Y') + 1) as $y)
                             <option value="{{ $y }}" {{ request('year') == $y ? 'selected' : '' }}>
                                 {{ $y }}
                             </option>

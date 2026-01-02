@@ -52,7 +52,7 @@
                             @endforeach
                         </select>
                         <select name="year" onchange="this.form.submit()" class="text-sm border-gray-300 rounded-md shadow-sm focus:border-red-500 focus:ring-red-500 py-1 pl-2 pr-8 cursor-pointer bg-gray-50 hover:bg-white transition">
-                            @foreach(range(date('Y') - 5, date('Y') + 2) as $y) 
+                            @foreach(range(date('Y') - 3, date('Y') + 1) as $y) 
                                 <option value="{{ $y }}" {{ $y == $tarikhKalendar->year ? 'selected' : '' }}>{{ $y }}</option>
                             @endforeach
                         </select>
@@ -93,7 +93,7 @@
                                 $isToday = $checkDate == now()->format('Y-m-d');
                                 $hasMeeting = in_array($checkDate, $tarikhMeeting);
 
-                                // LOGIK BARU: Tarik Data Penuh (Tajuk & Masa) untuk Tooltip
+                                // Tarik Data Penuh (Tajuk & Masa) untuk Tooltip
                                 $meetingsOnDay = [];
                                 if ($hasMeeting) {
                                     $meetingsOnDay = \App\Models\Meeting::whereDate('date', $checkDate)
