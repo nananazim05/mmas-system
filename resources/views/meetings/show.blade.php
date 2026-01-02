@@ -19,6 +19,7 @@
 
     <div class="max-w-6xl mx-auto space-y-6">
         
+        {{-- Butang Kembali --}}
         <a href="javascript:history.back()" class="inline-flex items-center text-gray-500 hover:text-[#B6192E] font-medium mb-4 transition no-print">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
             {{ __('messages.back_to_list') }}
@@ -26,19 +27,36 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
-            {{-- LOGIK UTAMA: Semak Status Berdasarkan Masa DAN Cache (Lesen Sementara) --}}
+            {{-- LOGIK UTAMA: Pengiraan Status & Masa --}}
             @php
-                $meetingEnd = \Carbon\Carbon::parse($meeting->date . ' ' . $meeting->end_time);
-                
-                // 1. Check adakah masa database dah tamat?
-                $isTimeExpired = now()->greaterThan($meetingEnd);
+                $start = \Carbon\Carbon::parse($meeting->date . ' ' . $meeting->start_time);
+                $end = \Carbon\Carbon::parse($meeting->date . ' ' . $meeting->end_time);
+                $now = now();
 
-                // 2. Check adakah ada "Lesen Sementara" (Cache) yang kita set di Controller?
+                // 1. Check Lesen Sementara (Cache)
                 $isExtended = \Illuminate\Support\Facades\Cache::has('meeting_extended_' . $meeting->id);
 
-                // 3. Tentukan samada betul-betul TAMAT (Untuk tutup QR)
-                // Ia tamat hanya jika: (Masa Dah Lepas) DAN (Tiada Lesen Sementara)
-                $isReallyCompleted = $isTimeExpired && !$isExtended;
+                // 2. Tentukan Label & Warna Status
+                if ($isExtended) {
+                    // Jika diaktifkan semula -> ACTIVE
+                    $statusLabel = 'ACTIVE (LANJUTAN)';
+                    $statusClass = 'text-yellow-600 font-bold uppercase text-sm animate-pulse';
+                } elseif ($now->lessThan($start)) {
+                    // Sebelum masa mula -> UPCOMING
+                    $statusLabel = 'UPCOMING';
+                    $statusClass = 'text-blue-600 font-bold uppercase text-sm';
+                } elseif ($now->between($start, $end)) {
+                    // Sedang berjalan -> ONGOING
+                    $statusLabel = 'ONGOING';
+                    $statusClass = 'text-green-600 font-bold uppercase text-sm';
+                } else {
+                    // Dah lepas masa tamat -> COMPLETED
+                    $statusLabel = 'COMPLETED';
+                    $statusClass = 'text-gray-600 font-bold uppercase text-sm';
+                }
+
+                // 3. Logic QR (QR Overlay) - QR hanya tamat jika masa dah lepas DAN tiada lesen
+                $isReallyCompleted = $now->greaterThan($end) && !$isExtended;
             @endphp
 
             <div class="lg:col-span-2 bg-white shadow-lg rounded-lg overflow-hidden border-t-4 border-[#B6192E]">
@@ -51,19 +69,16 @@
                         <div class="text-right">
                             <span class="block text-sm text-gray-500">{{ __('messages.status_label') }}</span>
                             
-                            {{-- LOGIK BADGE STATUS --}}
-                            @if($isReallyCompleted)
-                                <span class="text-green-600 font-bold uppercase text-sm">COMPLETED</span>
-                            @elseif($isExtended)
-                                {{-- Jika masa dah tamat TAPI ada lesen sementara --}}
-                                <span class="text-yellow-600 font-bold uppercase text-sm animate-pulse">ACTIVE (LANJUTAN)</span>
-                            @else
-                                <span class="text-blue-600 font-bold uppercase text-sm">UPCOMING</span>
-                            @endif
+                            {{-- PAPAR STATUS BARU (Dinamik) --}}
+                            <span class="{{ $statusClass }}">
+                                {{ $statusLabel }}
+                            </span>
+
                         </div>
                     </div>
 
                     <div class="space-y-4 border-t pt-6">
+                        {{-- Tarikh --}}
                         <div class="flex items-start">
                             <svg class="w-6 h-6 text-gray-400 mr-3 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                             <div>
@@ -74,6 +89,7 @@
                             </div>
                         </div>
 
+                        {{-- Masa --}}
                         <div class="flex items-start">
                             <svg class="w-6 h-6 text-gray-400 mr-3 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             <div>
@@ -87,6 +103,7 @@
                             </div>
                         </div>
 
+                        {{-- Tempat --}}
                         <div class="flex items-start">
                             <svg class="w-6 h-6 text-gray-400 mr-3 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                             <div>
@@ -97,6 +114,7 @@
                             </div>
                         </div>
 
+                        {{-- Penganjur --}}
                         <div class="flex items-start">
                             <svg class="w-6 h-6 text-gray-400 mr-3 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                             <div>
@@ -110,10 +128,12 @@
                 </div>
             </div>
 
+            {{-- Bahagian Kanan (QR & Admin Actions) --}}
             @if(Auth::user()->role === 'admin' || Auth::id() === $meeting->creator_id)
                 
                 <div id="printableArea" class="bg-white shadow-lg rounded-lg overflow-hidden p-8 flex flex-col items-center justify-center text-center border-t-4 border-gray-800 relative">
                     
+                    {{-- Header untuk Print Sahaja --}}
                     <div class="hidden print:block mb-6 w-full text-center">
                         <h1 class="text-3xl font-bold text-black mb-2 uppercase">{{ $meeting->title }}</h1>
                         <div class="text-lg text-gray-600 border-b-2 border-gray-400 pb-4 mb-4">
@@ -129,10 +149,11 @@
                     <h4 class="text-xl font-bold text-gray-800 mb-4 print:hidden">{{ __('messages.scan_attendance_title') }}</h4>
                     <p class="text-sm text-gray-500 mb-6 print:hidden">{{ __('messages.scan_instruction') }}</p>
                     
+                    {{-- Kotak QR Code --}}
                     <div class="p-4 bg-white border-2 border-gray-200 rounded-lg inline-block print:border-4 print:border-black print:p-2 relative">
                         {!! SimpleSoftwareIO\QrCode\Facades\QrCode::size(300)->generate(URL::signedRoute('attendance.scan', ['meeting' => $meeting->id, 'code' => $meeting->qr_code_string])) !!}
                         
-                        {{-- Overlay jika Tamat: HANYA MUNCUL JIKA BETUL-BETUL COMPLETED (Tiada lesen cache) --}}
+                        {{-- Overlay TAMAT (Hanya jika betul-betul tamat & tiada lesen) --}}
                         @if($isReallyCompleted)
                             <div class="absolute inset-0 bg-white bg-opacity-95 flex items-center justify-center print:hidden">
                                 <span class="text-red-600 font-bold border-2 border-red-600 p-1 rounded transform -rotate-12">TAMAT</span>
@@ -163,11 +184,13 @@
                             </button>
                         </form>
 
-                            <a href="{{ route('activities.print_qr', $meeting->id) }}" target="_blank" class="w-full bg-gray-800 text-white font-bold py-2 px-4 rounded hover:bg-gray-900 transition flex items-center justify-center gap-2">
-                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2-2v4h10z"/></svg>
-                                <span class="text-white">{{ __('messages.print_qr') }}</span>
-                            </a>
+                        {{-- Print QR (Route Khas) --}}
+                        <a href="{{ route('activities.print_qr', $meeting->id) }}" target="_blank" class="w-full bg-gray-800 text-white font-bold py-2 px-4 rounded hover:bg-gray-900 transition flex items-center justify-center gap-2">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2-2v4h10z"/></svg>
+                            <span class="text-white">{{ __('messages.print_qr') }}</span>
+                        </a>
                         
+                        {{-- Reports --}}
                         <div class="flex gap-2">
                             <a href="{{ route('activities.report.view', $meeting->id) }}" target="_blank" class="w-1/2 bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 transition flex items-center justify-center gap-2">
                                 <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
@@ -184,6 +207,7 @@
 
             @else
                 
+                {{-- Paparan untuk Staf Biasa (QR Hidden) --}}
                 <div class="bg-gray-50 rounded-lg p-8 flex flex-col items-center justify-center text-center border-2 border-dashed border-gray-300 h-full">
                     <div class="p-4 bg-white rounded-full shadow-sm mb-4">
                         <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4h2v-4zM6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>

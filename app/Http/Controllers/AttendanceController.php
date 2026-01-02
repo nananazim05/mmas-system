@@ -25,9 +25,9 @@ class AttendanceController extends Controller
             abort(403, 'Kod QR ini telah luput atau tidak sah. Sila imbas Kod QR terkini di skrin penganjur.');
         }
 
-        // Tetapkan Waktu Mula & Tamat (Dengan buffer 15 minit standard)
+        // Tetapkan Waktu Mula & Tamat
         $now = Carbon::now();
-        $startTime = Carbon::parse($meeting->date . ' ' . $meeting->start_time)->subMinutes(15);
+        $startTime = Carbon::parse($meeting->date . ' ' . $meeting->start_time)->subMinutes(60);
         $endTime = Carbon::parse($meeting->date . ' ' . $meeting->end_time)->addMinutes(15);
 
         // 4. Semak jika terlalu awal
