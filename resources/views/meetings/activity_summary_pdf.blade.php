@@ -107,7 +107,7 @@
                 <img src="{{ public_path('images/logo-mtib.png') }}" style="width: 80px; height: auto;">
             </td>
             <td class="header-title">
-                <h2>SENARAI AKTIVITI</h2>
+                <h2>SENARAI PROGRAM</h2>
                 <p>Sistem MMAS - Lembaga Perindustrian Kayu Malaysia (MTIB)</p>
             </td>
         </tr>
