@@ -23,11 +23,18 @@
     </style>
 </head>
 <body>
-
-    <div class="header">
-        <h1>Rekod Kehadiran Kakitangan</h1>
-        <p>Sistem MMAS - Lembaga Perindustrian Kayu Malaysia</p>
-    </div>
+    
+    <table class="header-table">
+        <tr>
+            <td class="header-logo">
+                <img src="{{ public_path('images/logo-mtib.png') }}" style="width: 90px; height: auto;">
+            </td>
+            <td class="header-title">
+                <h2>REKOD KEHADIRAN</h2>
+                <p>Sistem MMAS - Lembaga Perindustrian Kayu Malaysia (MTIB)</p>
+            </td>
+        </tr>
+    </table>
 
     <table class="profile-box">
         <tr>
@@ -37,7 +44,7 @@
             <td>{{ $user->staff_number }}</td>
         </tr>
         <tr>
-            <td class="label">Jawatan:</td>
+            <td class="label">Seksyen:</td>
             <td>{{ $user->section }}</td>
             <td class="label">Gred:</td>
             <td>{{ $user->grade }}</td>
@@ -48,13 +55,13 @@
         </tr>
     </table>
 
-    <h3>Sejarah Penyertaan Aktiviti</h3>
+    <h3>Sejarah Penyertaan Program</h3>
 
     <table class="list">
         <thead>
             <tr>
                 <th style="width: 30px;">Bil</th>
-                <th>Tajuk Aktiviti</th>
+                <th>Program</th>
                 <th>Tarikh & Tempat</th>
                 <th>Status</th>
             </tr>

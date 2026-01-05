@@ -107,11 +107,10 @@
     <table class="header-table">
         <tr>
             <td class="header-logo">
-                {{-- Pastikan file logo wujud di public/images/logo-mtib.png --}}
-                <img src="{{ public_path('images/logo-mtib.png') }}" style="width: 80px; height: auto;">
+                <img src="{{ public_path('images/logo-mtib.png') }}" style="width: 90px; height: auto;">
             </td>
             <td class="header-title">
-                <h2>LAPORAN PROGRAM</h2> {{-- Ubah Tajuk --}}
+                <h2>LAPORAN PROGRAM</h2> 
                 <p>Sistem MMAS - Lembaga Perindustrian Kayu Malaysia (MTIB)</p>
             </td>
         </tr>
@@ -133,7 +132,6 @@
             <td class="label">Tarikh</td>
             <td class="colon">:</td>
             <td class="value">
-                {{-- Format: 02 Disember 2025 --}}
                 {{ \Carbon\Carbon::parse($meeting->date)->translatedFormat('d F Y') }}
             </td>
         </tr>
@@ -172,8 +170,8 @@
         <thead>
             <tr>
                 <th width="5%" class="text-center">Bil</th>
-                <th width="35%">Nama Peserta</th>          {{-- Ubah Header --}}
-                <th width="35%">Bahagian / Syarikat</th>   {{-- Ubah Header --}}
+                <th width="35%">Nama Peserta</th>          
+                <th width="35%">Bahagian / Syarikat</th> 
                 <th width="15%" class="text-center">Waktu Imbas</th>
                 <th width="10%" class="text-center">Status</th>
             </tr>

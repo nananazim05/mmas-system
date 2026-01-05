@@ -10,7 +10,7 @@
             color: #333;
         }
 
-        /* HEADER: Table untuk Logo (Kiri) & Tajuk (Tengah) */
+        /* HEADER: Table untuk Logo & Tajuk */
         .header-table {
             width: 100%;
             margin-bottom: 10px;
@@ -65,7 +65,7 @@
             vertical-align: top;
         }
         table.data-table th {
-            background-color: #B6192E; /* Header Merah */
+            background-color: #B6192E; /* Header*/
             color: white;
             text-transform: uppercase;
             font-size: 10px;
@@ -103,8 +103,7 @@
     <table class="header-table">
         <tr>
             <td class="header-logo">
-                {{-- Logo MTIB --}}
-                <img src="{{ public_path('images/logo-mtib.png') }}" style="width: 80px; height: auto;">
+                <img src="{{ public_path('images/logo-mtib.png') }}" style="width: 90px; height: auto;">
             </td>
             <td class="header-title">
                 <h2>SENARAI PROGRAM</h2>
@@ -113,7 +112,7 @@
         </tr>
     </table>
 
-    {{-- 2. INFO PENGGUNA (Nama & No Pekerja Sahaja) --}}
+    {{-- 2. INFO PENGGUNA (Nama & No Pekerja) --}}
     <table class="user-info">
         <tr>
             <td width="15%">Nama:</td>
@@ -200,6 +199,10 @@
             @endforelse
         </tbody>
     </table>
+
+    <div class="footer">
+        Dijana oleh Sistem MMAS pada: {{ now()->format('d M Y, H:i A') }}
+    </div>
 
 </body>
 </html>
