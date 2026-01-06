@@ -108,7 +108,7 @@
     <table class="header-table">
         <tr>
             <td class="header-logo">
-                <img src="{{ public_path('images/logo-mtib.png') }}" style="width: 80px; height: auto;">
+                <img src="{{ public_path('images/logo-mtib.png') }}" style="width: 100px; height: auto;">
             </td>
             <td class="header-title">
                 <h2>REKOD KEHADIRAN</h2>
