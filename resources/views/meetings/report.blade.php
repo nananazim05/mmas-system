@@ -200,7 +200,7 @@
                         @if($attendance->user)
                             {{-- Nama Division / Bahagian --}}
                             @if(!empty($attendance->user->section))
-                            <div class="text-small">Seksyen: {{ $attendance->user->section }}</div>
+                            <div class="text-small">{{ $attendance->user->section }}</div>
                             
                             @endif
                             
