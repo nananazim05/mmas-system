@@ -28,7 +28,7 @@ class AttendanceController extends Controller
         // Tetapkan Waktu Mula & Tamat
         $now = Carbon::now();
         $startTime = Carbon::parse($meeting->date . ' ' . $meeting->start_time)->subMinutes(60);
-        $endTime = Carbon::parse($meeting->date . ' ' . $meeting->end_time)->addMinutes(15);
+        $endTime = Carbon::parse($meeting->date . ' ' . $meeting->end_time)->addMinutes(30);
 
         // 4. Semak jika terlalu awal
         if ($now->lessThan($startTime)) {
