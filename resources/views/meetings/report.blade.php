@@ -198,13 +198,14 @@
                     {{-- BAHAGIAN / SYARIKAT + SEKSYEN --}}
                     <td>
                         @if($attendance->user)
-                            {{-- Nama Bahagian / Division --}}
-                            <div>{{ $attendance->user->division ?? $attendance->user->department ?? '-' }}</div>
-                            
-                            {{-- Nama Seksyen (Jika ada) --}}
+                            {{-- Nama Division / Bahagian --}}
                             @if(!empty($attendance->user->section))
-                                <span class="text-small">Seksyen: {{ $attendance->user->section }}</span>
+                            <div class="text-small">Seksyen: {{ $attendance->user->section }}</div>
+                            
                             @endif
+                            
+                            {{-- Nama  --}}
+                            <div>{{ $attendance->user->division ?? $attendance->user->department ?? '-' }}</div>
                         @else
                             {{-- Syarikat untuk peserta luar --}}
                             {{ $attendance->company_name ?? '-' }}
