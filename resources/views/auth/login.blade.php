@@ -25,7 +25,7 @@
                     <div class="flex flex-row items-center justify-center gap-6 mb-4">
         
                        <img src="{{ asset('images/logo-mmas.png') }}" alt="MMAS Logo" class="h-20 sm:h-24 w-auto drop-shadow-md">
-                       <img src="{{ asset('images/logo-mtib.png') }}" alt="MTIB Logo" class="h-20 sm:h-24 w-auto drop-shadow-md">
+                       <img src="{{ asset('images/logo-mtib.png') }}" alt="MTIB Logo" class="h-24 sm:h-32 w-auto drop-shadow-md">
     
                     </div>
 
