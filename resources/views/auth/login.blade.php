@@ -21,10 +21,17 @@
             <div class="w-full sm:max-w-md mt-6 px-6 py-8 sm:px-10 sm:py-12 bg-[#FFFBF2] shadow-2xl overflow-hidden rounded-xl">
                 
                 <div class="flex flex-col items-center mb-8">
-                    <img src="{{ asset('images/logo-mmas.png') }}" alt="MMAS Logo" class="h-20 sm:h-24 w-auto mb-4 drop-shadow-md">
-                    
+    
+                    <div class="flex flex-row items-center justify-center gap-6 mb-4">
+        
+                       <img src="{{ asset('images/logo-mmas.png') }}" alt="MMAS Logo" class="h-20 sm:h-24 w-auto drop-shadow-md">
+                       <img src="{{ asset('images/Logo-MTIB.png') }}" alt="MTIB Logo" class="h-20 sm:h-24 w-auto drop-shadow-md">
+    
+                    </div>
+
                     <h1 class="text-2xl sm:text-3xl font-extrabold text-[#7F0000] tracking-tight text-center">MMAS</h1>
                     <p class="text-gray-800 text-xs sm:text-sm font-medium mt-1 text-center">MTIB Multi-Event Attendance System</p>
+
                 </div>
 
                 <x-auth-session-status class="mb-4" :status="session('status')" />

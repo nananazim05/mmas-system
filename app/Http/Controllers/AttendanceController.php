@@ -66,7 +66,7 @@ class AttendanceController extends Controller
         
         if ($request->attendance_type === 'staff') {
             
-            // === SENARIO A: STAF MTIB ===
+            // === STAF MTIB ===
             
             // 1. Cari Staf
             $registeredUser = User::where('staff_number', $request->staff_id)->first();
@@ -95,7 +95,7 @@ class AttendanceController extends Controller
 
         } else {
             
-            // === SENARIO B: PESERTA LUAR (GUEST) ===
+            // === PESERTA LUAR (GUEST) ===
             
             // 1. [BARU] Semak Duplicate (Guna Email)
             $alreadyRegistered = Attendance::where('meeting_id', $request->meeting_id)
