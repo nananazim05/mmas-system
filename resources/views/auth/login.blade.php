@@ -22,7 +22,7 @@
                 
                 <div class="flex flex-col items-center mb-8">
     
-                    <div class="flex flex-row items-center justify-center gap-3 mb-4">
+                    <div class="flex flex-row items-center justify-center gap-2 mb-4">
         
                        <img src="{{ asset('images/logo-mmas.png') }}" alt="MMAS Logo" class="h-20 sm:h-24 w-auto drop-shadow-md">
                        <img src="{{ asset('images/logo-mtib.png') }}" alt="MTIB Logo" class="h-24 sm:h-32 w-auto drop-shadow-md">
