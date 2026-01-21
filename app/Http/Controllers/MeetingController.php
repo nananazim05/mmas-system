@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Cache;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 
 class MeetingController extends Controller
 {
@@ -90,8 +91,6 @@ class MeetingController extends Controller
     }
 
     // 4. Simpan Data (Store)
-    use Carbon\Carbon;
-
     public function store(Request $request)
    {
     // 1. Rules asas yang sentiasa WAJIB
