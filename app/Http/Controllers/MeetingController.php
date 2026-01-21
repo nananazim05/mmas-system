@@ -105,7 +105,7 @@ class MeetingController extends Controller
     ];
 
     // 2. Logic: Cek adakah aktiviti ini SUDAH TAMAT? (Backdated)
-    $isBackdatedEntry = false; // Default anggap belum lepas
+    $isBackdatedEntry = false; 
 
     if ($request->filled('date') && $request->filled('end_time')) {
         try {
@@ -199,9 +199,9 @@ class MeetingController extends Controller
 
         // Redirect mesej
         if ($isBackdatedEntry) {
-            return redirect()->route('activities.my')->with('success', 'Rekod aktiviti lampau berjaya disimpan (Tiada e-mel dihantar).');
+            return redirect()->route('activities.my')->with('success', 'Rekod aktiviti berjaya disimpan.');
         } else {
-            return redirect()->route('activities.my')->with('success', 'Aktiviti berjaya dicipta dan jemputan telah dihantar!');
+            return redirect()->route('activities.my')->with('success', 'Aktiviti berjaya dicipta!');
         }
   }
 
