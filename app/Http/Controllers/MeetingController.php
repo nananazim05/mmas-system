@@ -90,100 +90,121 @@ class MeetingController extends Controller
     }
 
     // 4. Simpan Data (Store)
+    use Carbon\Carbon;
+
     public function store(Request $request)
- {
-    // A. VALIDASI
-    $request->validate([
-        'title' => 'required|string|max:255',
-        'date' => 'required|date',
-        'start_time' => 'required',
-        'end_time' => 'required|after:start_time',
-        'venue' => 'required|string',
+   {
+    // 1. Rules asas yang sentiasa WAJIB
+    $rules = [
+        'title'         => 'required|string|max:255',
+        'date'          => 'required|date',
+        'start_time'    => 'required',
+        'end_time'      => 'required|after:start_time',
+        'venue'         => 'required|string',
         'activity_type' => 'required|string',
-        'organizer' => 'required|string|max:255', 
-        'invited_staff' => 'required_without:guest_emails',
-        'guest_emails' => 'required_without:invited_staff',
-    ], [
+        'organizer'     => 'required|string|max:255',
+    ];
+
+    // 2. Logic: Cek adakah aktiviti ini SUDAH TAMAT? (Backdated)
+    $isBackdatedEntry = false; // Default anggap belum lepas
+
+    if ($request->filled('date') && $request->filled('end_time')) {
+        try {
+            
+            $activityEndTimestamp = Carbon::parse($request->date . ' ' . $request->end_time);
+            
+            if (now()->greaterThan($activityEndTimestamp)) {
+                $isBackdatedEntry = true;
+            }
+        } catch (\Exception $e) {
+            // Kalau format tarikh/masa salah, abaikan, kekal false (Wajib isi)
+        }
+    }
+
+    if ($isBackdatedEntry) {
+        // Kalau dah LEPAS (Masa & Tarikh), tak payah isi peserta
+        $rules['invited_staff'] = 'nullable';
+        $rules['guest_emails']  = 'nullable';
+    } else {
+        // Kalau BELUM LEPAS (Upcoming/Sedang Berjalan), WAJIB isi
+        $rules['invited_staff'] = 'required_without:guest_emails';
+        $rules['guest_emails']  = 'required_without:invited_staff';
+    }
+
+    // 4. Jalankan Validasi
+    $request->validate($rules, [
         'invited_staff.required_without' => 'Sila pilih sekurang-kurangnya seorang Staf atau masukkan E-mel Peserta Luar.',
-        'guest_emails.required_without' => 'Sila pilih sekurang-kurangnya seorang Staf atau masukkan E-mel Peserta Luar.',
-        'end_time.after' => 'Masa tamat mestilah selepas masa mula.',
+        'guest_emails.required_without'  => 'Sila pilih sekurang-kurangnya seorang Staf atau masukkan E-mel Peserta Luar.',
+        'end_time.after'                 => 'Masa tamat mestilah selepas masa mula.',
     ]);
 
+    // ==========================================
     // B. SIMPAN KE DATABASE
+    // ==========================================
     $meeting = Meeting::create([
-        'title' => $request->title,
-        'date' => $request->date,
-        'start_time' => $request->start_time,
-        'end_time' => $request->end_time,
-        'venue' => $request->venue,
-        'activity_type' => $request->activity_type,
-        'organizer' => $request->organizer, 
-        'creator_id' => Auth::id(), 
+        'title'          => $request->title,
+        'date'           => $request->date,
+        'start_time'     => $request->start_time,
+        'end_time'       => $request->end_time,
+        'venue'          => $request->venue,
+        'activity_type'  => $request->activity_type,
+        'organizer'      => $request->organizer, 
+        'creator_id'     => Auth::id(), 
         'qr_code_string' => Str::random(32),
-        'status' => 'upcoming', 
+        'status'         => 'upcoming', 
     ]);
-    // Gabungkan Tarikh + Masa Tamat untuk dapat waktu sebenar aktiviti berakhir
-    $meetingEndTimestamp = \Carbon\Carbon::parse($request->date . ' ' . $request->end_time);
-    
-    // TRUE = Aktiviti dah lepas (Backdated)
-    // FALSE = Aktiviti belum lepas (Upcoming)
-    $isPast = now()->greaterThan($meetingEndTimestamp);
-
 
     // C. JEMPUT STAF
-    if ($request->has('invited_staff')) {
+     if ($request->has('invited_staff') && is_array($request->invited_staff)) {
         foreach ($request->invited_staff as $userId) {
             Invitation::create([
                 'meeting_id' => $meeting->id,
-                'user_id' => $userId,
-                'status' => 'invited'
+                'user_id'    => $userId,
+                'status'     => 'invited'
             ]);
             
-            // HANTAR E-MEL HANYA JIKA AKTIVITI BELUM LEPAS
-            if (!$isPast) {
+            // HANTAR E-MEL JIKA BELUM LEPAS
+            if (!$isBackdatedEntry) {
                 $user = User::find($userId);
                 if ($user && $user->email) {
                     try {
                         Mail::to($user->email)->send(new MeetingInvitation($meeting));
-                    } catch (\Exception $e) {
-                        // Log error jika email gagal
-                    }
+                    } catch (\Exception $e) {}
                 }
             }
         }
-    }
+     }
 
-    // D. JEMPUT LUAR
-    if ($request->filled('guest_emails')) {
+      // D. JEMPUT LUAR
+      if ($request->filled('guest_emails')) {
         $emails = explode(',', $request->guest_emails);
         foreach ($emails as $email) {
             $email = trim($email);
             if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
                 Invitation::create([
-                    'meeting_id' => $meeting->id,
+                    'meeting_id'  => $meeting->id,
                     'guest_email' => $email,
-                    'guest_name' => 'Peserta Luar',
-                    'status' => 'invited'
+                    'guest_name'  => 'Peserta Luar',
+                    'status'      => 'invited'
                 ]);
                 
-                // HANTAR E-MEL HANYA JIKA AKTIVITI BELUM LEPAS
-                if (!$isPast) {
+                // HANTAR E-MEL JIKA BELUM LEPAS SAHAJA
+                if (!$isBackdatedEntry) {
                     try {
                         Mail::to($email)->send(new MeetingInvitation($meeting));
-                    } catch (\Exception $e) {
-                        // Log error
-                    }
+                    } catch (\Exception $e) {}
                 }
             }
         }
-    }
+     }
 
-    if ($isPast) {
-        return redirect()->route('activities.my')->with('success', 'Aktiviti lampau berjaya dicipta.');
-    } else {
-        return redirect()->route('activities.my')->with('success', 'Aktiviti berjaya dicipta!');
-    }
- }
+        // Redirect mesej
+        if ($isBackdatedEntry) {
+            return redirect()->route('activities.my')->with('success', 'Rekod aktiviti lampau berjaya disimpan (Tiada e-mel dihantar).');
+        } else {
+            return redirect()->route('activities.my')->with('success', 'Aktiviti berjaya dicipta dan jemputan telah dihantar!');
+        }
+  }
 
     // 5. Papar Butiran (Show)
     public function show(Meeting $meeting)
