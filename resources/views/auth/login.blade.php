@@ -78,7 +78,7 @@
             </div>
             
             <div class="mt-8 text-white/60 text-xs text-center">
-                 &copy; {{ date('Y') }} MTIB. All rights reserved.
+                 &copy; 2026 {{ date('Y') > 2026 ? '- ' . date('Y') : '' }} MTIB.
             </div>
         </div>
     </body>

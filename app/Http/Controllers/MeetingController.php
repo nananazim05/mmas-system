@@ -137,9 +137,7 @@ class MeetingController extends Controller
         'end_time.after'                 => 'Masa tamat mestilah selepas masa mula.',
     ]);
 
-    // ==========================================
     // B. SIMPAN KE DATABASE
-    // ==========================================
     $meeting = Meeting::create([
         'title'          => $request->title,
         'date'           => $request->date,
