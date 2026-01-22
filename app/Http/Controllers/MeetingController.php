@@ -13,6 +13,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\URL;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 
@@ -414,15 +415,15 @@ class MeetingController extends Controller
         return $pdf->stream('Laporan_Senarai_Aktiviti.pdf');
     }
 
-    // Function untuk Print QR
-    public function printQr(Meeting $meeting)
+        // Function untuk Print QR
+        public function printQr(Meeting $meeting)
     {
         // 1. Kira Waktu Tamat
         $meetingEnd = \Carbon\Carbon::parse($meeting->date . ' ' . $meeting->end_time);
-        
+    
         // 2. Semak Adakah Sudah Tamat?
         $isExpired = now()->greaterThan($meetingEnd);
-        
+    
         // 3. Semak Adakah Diaktifkan Semula (Cache 15 minit)?
         $isReactivated = Cache::has('meeting_extended_' . $meeting->id);
 
@@ -430,16 +431,19 @@ class MeetingController extends Controller
 
         // LOGIK: Tunjuk QR hanya jika (Belum Tamat) ATAU (Sudah Tamat TAPI Diaktifkan Semula)
         if (!$isExpired || $isReactivated) {
-            
-            // Jana URL untuk scan
-            $url = route('attendance.scan', [
-                'meeting' => $meeting->id, 
-                'code' => $meeting->qr_code_string
-            ]);
-            
-            // Jana imej QR
+        
+            $url = URL::temporarySignedRoute(
+                'attendance.scan',       // Nama Route
+                now()->addHours(9),     // Masa Luput (Tahan 9 jam dari saat print)
+                [
+                    'meeting' => $meeting->id, 
+                    'code' => $meeting->qr_code_string
+               ]
+           );
+        
+            // Jana imej QR menggunakan URL
             $qrCode = \SimpleSoftwareIO\QrCode\Facades\QrCode::size(400)->generate($url);
-        }
+       }
 
         // Hantar ke view print
         return view('meetings.print_qr', compact('meeting', 'qrCode', 'isExpired', 'isReactivated'));

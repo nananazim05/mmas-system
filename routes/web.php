@@ -60,10 +60,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/attendance/history', [AttendanceController::class, 'history'])->name('attendance.history');
 });
 
-// 4. ROUTE KEHADIRAN (PUBLIC - Boleh diakses Guest & Staf tanpa login session browser)
+// 4. ROUTE KEHADIRAN (Boleh diakses Guest & Staf tanpa login session browser)
 // Scan & Store diletak di luar 'auth' middleware supaya 'Peserta Luar' boleh akses.
+
 // Route scan QR
-Route::get('/attendance/scan/{meeting}/{code}', [AttendanceController::class, 'scan'])->name('attendance.scan');
+Route::get('/attendance/scan/{meeting}/{code}', [AttendanceController::class, 'scan'])
+    ->name('attendance.scan')
+    ->middleware('signed');
 
 // Route untuk simpan kehadiran (PENTING: Saya buang {meeting} sebab ID dihantar via hidden input)
 Route::post('/attendance/store', [AttendanceController::class, 'store'])->name('attendance.store');

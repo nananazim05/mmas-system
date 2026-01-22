@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Cetak QR - {{ $meeting->title }}</title>
+    <title>QR - {{ $meeting->title }}</title>
     <style>
         body {
             font-family: Arial, sans-serif;
