@@ -23,27 +23,27 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 
 // 3. Group Wajib Login 
 Route::middleware('auth')->group(function () {
-
-    // 1. LALUAN UMUM (PROFIL & SEJARAH)
+    
+    // --- 1. Profil & Umum ---
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::get('/attendance/history', [AttendanceController::class, 'history'])->name('attendance.history');
 
-    // 2. PENGURUSAN AKTIVITI (STAF BOLEH AKSES UNTUK AKTIVITI MEREKA)
-    // Senarai & Create
+    // --- 2. Import Excel (Kita letak sini je) ---
+    Route::post('/staff/import', [UserController::class, 'import'])->name('staff.import');
+
+    // --- 3. Pengurusan Aktiviti (Semua user boleh akses, control dalam controller) ---
     Route::get('/activities', [MeetingController::class, 'index'])->name('activities.index');
     Route::get('/activities/my', [MeetingController::class, 'myActivities'])->name('activities.my');
     Route::get('/activities/create', [MeetingController::class, 'create'])->name('activities.create');
     Route::post('/activities', [MeetingController::class, 'store'])->name('activities.store');
-    
-    // Butiran, Edit, Delete
     Route::get('/activities/{meeting}', [MeetingController::class, 'show'])->name('activities.show');
     Route::get('/activities/{meeting}/edit', [MeetingController::class, 'edit'])->name('activities.edit');
     Route::put('/activities/{meeting}', [MeetingController::class, 'update'])->name('activities.update');
     Route::delete('/activities/{meeting}', [MeetingController::class, 'destroy'])->name('activities.destroy');
 
-    // Fungsi Khas (QR, Report, Reactivate)
+    // --- 4. Fungsi Khas Aktiviti (QR, Report) ---
     Route::get('/activities/summary-report', [MeetingController::class, 'janaLaporan'])->name('activities.summary_report');
     Route::get('/activities/{meeting}/print-qr', [MeetingController::class, 'printQr'])->name('activities.print_qr');
     Route::get('/activities/{meeting}/qr', [MeetingController::class, 'getQr'])->name('activities.get_qr');
@@ -51,22 +51,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/activities/{meeting}/report', [MeetingController::class, 'report'])->name('activities.report');
     Route::get('/activities/{meeting}/report/view', [MeetingController::class, 'viewReport'])->name('activities.report.view');
 
-    // 3. ADMIN SAHAJA
-    Route::middleware(function ($request, $next) {
-        if (auth()->user()->role !== 'admin') {
-            abort(403, 'MAAF, ANDA TIADA AKSES ADMIN.');
-        }
-        return $next($request);
-    })->group(function () {
-
-        // --- IMPORT EXCEL ---
-        Route::post('/staff/import', [UserController::class, 'import'])->name('staff.import');
-
-        // --- URUS SENARAI STAF ---
-        Route::resource('staff', StaffController::class);
-        Route::get('/staff/{user}/report', [StaffController::class, 'report'])->name('staff.report');
-
-    });
+    // --- 5. Pengurusan Staf (Admin) ---
+    Route::resource('staff', StaffController::class);
+    Route::get('/staff/{user}/report', [StaffController::class, 'report'])->name('staff.report');
 
 });
 

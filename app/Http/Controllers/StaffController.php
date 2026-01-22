@@ -151,6 +151,11 @@ class StaffController extends Controller
     // 9. Import Staf dari Excel
     public function import(Request $request) 
     {
+
+        if (auth()->user()->role !== 'admin') {
+        abort(403, 'MAAF, ADMIN SAHAJA DIBENARKAN.');
+        }
+
         $request->validate([
             'file' => 'required|mimes:xlsx,xls',
       ]);
