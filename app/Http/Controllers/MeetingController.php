@@ -418,6 +418,9 @@ class MeetingController extends Controller
         // Function untuk Print QR
         public function printQr(Meeting $meeting)
     {
+        if (auth()->user()->role !== 'admin' && $meeting->created_by !== auth()->id()) {
+        abort(403, 'Anda tiada hak ke atas aktiviti ini.');
+        }
         // 1. Kira Waktu Tamat
         $meetingEnd = \Carbon\Carbon::parse($meeting->date . ' ' . $meeting->end_time);
     

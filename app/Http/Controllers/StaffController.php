@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use Barryvdh\DomPDF\Facade\Pdf; 
 use App\Models\Invitation; 
 use App\Models\User;
+use App\Imports\StaffImport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
+use Maatwebsite\Excel\Facades\Excel;
 
 class StaffController extends Controller
 {
@@ -144,5 +146,17 @@ class StaffController extends Controller
 
         // Download: Laporan-NamaStaf.pdf
         return $pdf->download('Laporan-' . str_replace(' ', '-', $user->name) . '.pdf');
+    }
+
+    // 9. Import Staf dari Excel
+    public function import(Request $request) 
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls',
+      ]);
+
+        Excel::import(new StaffImport, $request->file('file'));
+    
+        return back()->with('success', 'Berjaya Import!');
     }
 }

@@ -24,6 +24,76 @@
                        class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-gray-50 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:border-[#B6192E] focus:ring-[#B6192E] sm:text-sm transition duration-150 ease-in-out" 
                        placeholder="{{ __('messages.search_staff_placeholder') }}">
             </div>
+
+
+
+        @if(auth()->user()->role === 'admin') 
+
+            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-6">
+        
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+            
+                    {{-- Kiri: Tajuk & Penerangan --}}
+                 <div class="text-gray-700">
+                      <h3 class="font-bold text-lg text-gray-800">📥 {{ __('messages.import_title') }}</h3>
+                       <p class="text-sm text-gray-500">{{ __('messages.import_desc') }}</p>
+                 </div>
+
+                   {{-- Kanan: Form Upload --}}
+                    <form action="{{ route('staff.import') }}" 
+                        method="POST" 
+                        enctype="multipart/form-data" 
+                        class="flex flex-col sm:flex-row items-center gap-2 w-full md:w-auto">
+                
+                      @csrf 
+
+                     {{-- Input Fail --}}
+                     <input type="file" 
+                           name="file" 
+                           required
+                           accept=".xlsx, .xls"
+                           class="block w-full text-sm text-gray-500
+                              file:mr-4 file:py-2 file:px-4
+                              file:rounded-md file:border-0
+                              file:text-sm file:font-semibold
+                              file:bg-blue-50 file:text-blue-700
+                              hover:file:bg-blue-100
+                              border border-gray-300 rounded-md cursor-pointer p-1">
+
+                     {{-- Butang Submit --}}
+                      <button type="submit" 
+                        class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-md transition duration-200 flex items-center justify-center gap-2">
+                     <span>{{ __('messages.upload_btn') }}</span>
+                     </button>
+                    </form>
+                </div>
+         
+                {{-- Jika Berjaya --}}
+              @if(session('success'))
+                   <div class="mt-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded flex items-center gap-2">
+                       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                       <span>{{ session('success') }}</span>
+                   </div>
+              @endif
+
+              {{-- Jika Gagal / Error --}}
+              @if($errors->any())
+                   <div class="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                        <p class="font-bold flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                           Terdapat Masalah:
+                               </p>
+                                <ul class="list-disc list-inside ml-5 mt-1 text-sm">
+                                   @foreach ($errors->all() as $error)
+                                       <li>{{ $error }}</li>
+                                   @endforeach
+                                </ul>
+                    </div>
+                @endif
+
+            </div>
+
+        @endif
             
             <a href="{{ route('staff.create') }}" class="w-full sm:w-auto flex items-center justify-center px-4 py-2 bg-[#B6192E] text-white font-bold rounded-lg hover:bg-[#900000] shadow-md transition text-sm">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>

@@ -21,43 +21,53 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
-// 3. Group Wajib Login (Staf Sahaja)
+// 3. Group Wajib Login 
 Route::middleware('auth')->group(function () {
-    
-    // Profil
+
+    // 1. LALUAN UMUM (PROFIL & SEJARAH)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/attendance/history', [AttendanceController::class, 'history'])->name('attendance.history');
 
-    // Pengurusan Aktiviti (CRUD)
-    Route::get('/activities/summary-report', [MeetingController::class, 'janaLaporan'])->name('activities.summary_report');
-    Route::get('/activities/my', [MeetingController::class, 'myActivities'])->name('activities.my');
+    // 2. PENGURUSAN AKTIVITI (STAF BOLEH AKSES UNTUK AKTIVITI MEREKA)
+    // Senarai & Create
     Route::get('/activities', [MeetingController::class, 'index'])->name('activities.index');
+    Route::get('/activities/my', [MeetingController::class, 'myActivities'])->name('activities.my');
     Route::get('/activities/create', [MeetingController::class, 'create'])->name('activities.create');
     Route::post('/activities', [MeetingController::class, 'store'])->name('activities.store');
-    Route::get('/activities/{meeting}', [MeetingController::class, 'show'])->name('activities.show');
-    Route::get('/activities/{meeting}/print-qr', [MeetingController::class, 'printQr'])->name('activities.print_qr');
     
-    // Edit & Delete Aktiviti
+    // Butiran, Edit, Delete
+    Route::get('/activities/{meeting}', [MeetingController::class, 'show'])->name('activities.show');
     Route::get('/activities/{meeting}/edit', [MeetingController::class, 'edit'])->name('activities.edit');
     Route::put('/activities/{meeting}', [MeetingController::class, 'update'])->name('activities.update');
     Route::delete('/activities/{meeting}', [MeetingController::class, 'destroy'])->name('activities.destroy');
 
-    // Pengurusan Staf
-    Route::resource('staff', StaffController::class);
-
-    // Route untuk AJAX QR Code & Reactivate
+    // Fungsi Khas (QR, Report, Reactivate)
+    Route::get('/activities/summary-report', [MeetingController::class, 'janaLaporan'])->name('activities.summary_report');
+    Route::get('/activities/{meeting}/print-qr', [MeetingController::class, 'printQr'])->name('activities.print_qr');
     Route::get('/activities/{meeting}/qr', [MeetingController::class, 'getQr'])->name('activities.get_qr');
     Route::post('/activities/{meeting}/reactivate', [MeetingController::class, 'reactivate'])->name('activities.reactivate');
-
-    // Route Laporan (Report)
-    Route::get('/staff/{user}/report', [StaffController::class, 'report'])->name('staff.report');
     Route::get('/activities/{meeting}/report', [MeetingController::class, 'report'])->name('activities.report');
     Route::get('/activities/{meeting}/report/view', [MeetingController::class, 'viewReport'])->name('activities.report.view');
-    
 
-    // Route Sejarah Kehadiran Saya (Baru Tambah)
-    Route::get('/attendance/history', [AttendanceController::class, 'history'])->name('attendance.history');
+    // 3. ADMIN SAHAJA
+    Route::middleware(function ($request, $next) {
+        if (auth()->user()->role !== 'admin') {
+            abort(403, 'MAAF, ANDA TIADA AKSES ADMIN.');
+        }
+        return $next($request);
+    })->group(function () {
+
+        // --- IMPORT EXCEL ---
+        Route::post('/staff/import', [UserController::class, 'import'])->name('staff.import');
+
+        // --- URUS SENARAI STAF ---
+        Route::resource('staff', StaffController::class);
+        Route::get('/staff/{user}/report', [StaffController::class, 'report'])->name('staff.report');
+
+    });
+
 });
 
 // 4. ROUTE KEHADIRAN (Boleh diakses Guest & Staf tanpa login session browser)

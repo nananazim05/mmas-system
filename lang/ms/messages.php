@@ -139,6 +139,13 @@ return [
     'add_staff' => 'Tambah Staf Baru',
     'search_staff_placeholder' => 'Cari Nama, No Pekerja atau IC...',
     
+    // Import Staff
+    'import_title' => 'Import Data Staf',
+    'import_desc'  => 'Muat naik fail Excel (.xlsx) untuk daftar staf secara pukal.',
+    'upload_btn'   => 'Muat Naik',
+    'admin_only'   => 'Import Data Staf (Admin Sahaja)',
+    'success_msg'  => 'Berjaya Diimport!',
+
     // Jadual Staf
     'staff_no' => 'No. Pekerja',
     'name_email' => 'Nama & E-mel',

@@ -140,6 +140,13 @@ return [
     'add_staff' => 'Add New Staff',
     'search_staff_placeholder' => 'Search Name, Staff ID or IC...',
 
+    // Import Staff
+    'import_title' => 'Import Staff Data',
+    'import_desc'  => 'Upload Excel file (.xlsx) to register staff in bulk.',
+    'upload_btn'   => 'Upload',
+    'admin_only'   => 'Import Staff Data (Admin Only)',
+    'success_msg'  => 'Import successful!',
+
     // Staff Table
     'staff_no' => 'Staff No.',
     'name_email' => 'Name & Email',
