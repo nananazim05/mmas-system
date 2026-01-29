@@ -4,6 +4,18 @@
     </x-slot>
 
     <div class="space-y-6">
+
+        @if(session('success'))
+            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-sm flex items-center justify-between" role="alert">
+                <div class="flex items-center">
+                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <p class="font-bold">{{ session('success') }}</p>
+                </div>
+                <button onclick="this.parentElement.style.display='none'" class="text-green-700 hover:text-green-900 focus:outline-none">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+        @endif
         
         <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-[#B6192E]">
             <form method="GET" action="{{ route('activities.index') }}" class="flex flex-col md:flex-row gap-4 items-center justify-between">

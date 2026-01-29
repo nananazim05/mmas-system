@@ -60,7 +60,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                         <div>
                             <label class="block text-gray-700 text-sm font-bold mb-2">{{ __('messages.section_label') }}</label>
-                            <input type="text" name="section" class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-[#B6192E] focus:border-[#B6192E]" required>
+                            <input type="text" name="section" class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:ring-[#B6192E] focus:border-[#B6192E]">
                         </div>
                         <div>
                             <label class="block text-gray-700 text-sm font-bold mb-2">{{ __('messages.division_label') }}</label>

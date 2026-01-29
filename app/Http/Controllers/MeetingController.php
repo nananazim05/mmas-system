@@ -103,6 +103,8 @@ class MeetingController extends Controller
         'venue'         => 'required|string',
         'activity_type' => 'required|string',
         'organizer'     => 'required|string|max:255',
+        'invited_staff' => 'nullable|array',
+        'guest_emails'  => 'nullable|string',
     ];
 
     // 2. Logic: Cek adakah aktiviti ini SUDAH TAMAT? (Backdated)
@@ -127,14 +129,13 @@ class MeetingController extends Controller
         $rules['guest_emails']  = 'nullable';
     } else {
         // Kalau BELUM LEPAS (Upcoming/Sedang Berjalan), WAJIB isi
-        $rules['invited_staff'] = 'required_without:guest_emails';
-        $rules['guest_emails']  = 'required_without:invited_staff';
+        $rules['invited_staff'] = 'nullable';
+        $rules['guest_emails']  = 'nullable';
     }
 
     // 4. Jalankan Validasi
     $request->validate($rules, [
         'invited_staff.required_without' => 'Sila pilih sekurang-kurangnya seorang Staf atau masukkan E-mel Peserta Luar.',
-        'guest_emails.required_without'  => 'Sila pilih sekurang-kurangnya seorang Staf atau masukkan E-mel Peserta Luar.',
         'end_time.after'                 => 'Masa tamat mestilah selepas masa mula.',
     ]);
 
@@ -305,7 +306,7 @@ class MeetingController extends Controller
         // 3. Terus padam data dari database
         $meeting->delete();
         
-        return redirect()->route('activities.my')->with('success', 'Aktiviti berjaya dipadam.');
+        return back()->with('success', 'Aktiviti Berjaya Dipadam.');
     }
     // 9. Laporan PDF (Report)
     public function report(Meeting $meeting)

@@ -50,7 +50,7 @@ class StaffController extends Controller
             'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
             'ic_number' => ['required', 'string', 'max:12', 'unique:'.User::class],
             'staff_number' => ['required', 'string', 'max:20', 'unique:'.User::class],
-            'section' => ['required', 'string'],
+            'section' => ['nullable', 'string'],
             'division' => ['required', 'string'],
             'grade' => ['required', 'string'],
             'role' => ['required', 'in:admin,staff'],

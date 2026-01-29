@@ -15,7 +15,7 @@
         
         <div class="bg-[#B6192E] p-6 text-center text-white">
             <h2 class="text-xl font-bold uppercase tracking-wide">Sahkan Kehadiran</h2>
-            <p class="text-xs opacity-80 mt-1">MTIB Meeting Attendance System</p>
+            <p class="text-xs opacity-80 mt-1">MTIB Multi-Event Attendance System</p>
         </div>
 
         <div class="p-6">
@@ -93,7 +93,7 @@
         </div>
         
         <div class="bg-gray-50 p-4 text-center text-xs text-gray-400">
-            &copy; {{ date('Y') }} MTIB MMAS
+            &copy; 2026 {{ date('Y') > 2026 ? '- ' . date('Y') : '' }} MTIB.
         </div>
     </div>
 

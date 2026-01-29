@@ -4,7 +4,8 @@ use App\Http\Controllers\StaffController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MeetingController;
-use App\Http\Controllers\AttendanceController; 
+use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\UserController; 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Artisan;
@@ -30,10 +31,11 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::get('/attendance/history', [AttendanceController::class, 'history'])->name('attendance.history');
 
-    // --- 2. Import Excel (Kita letak sini je) ---
-    Route::post('/staff/import', [UserController::class, 'import'])->name('staff.import');
+    // 2. Import Excel
+    Route::post('/staff/import', [StaffController::class, 'import'])->name('staff.import');
 
-    // --- 3. Pengurusan Aktiviti (Semua user boleh akses, control dalam controller) ---
+    // --- 3. Pengurusan Aktiviti (Semua user boleh akses, control dalam controller)
+    Route::get('/activities/summary-report', [MeetingController::class, 'janaLaporan'])->name('activities.summary_report');
     Route::get('/activities', [MeetingController::class, 'index'])->name('activities.index');
     Route::get('/activities/my', [MeetingController::class, 'myActivities'])->name('activities.my');
     Route::get('/activities/create', [MeetingController::class, 'create'])->name('activities.create');

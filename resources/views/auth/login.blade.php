@@ -41,7 +41,17 @@
 
                     <div class="mb-5">
                         <label for="ic_number" class="block font-bold text-[#7F0000] text-sm mb-2">No Kad Pengenalan</label>
-                        <input id="ic_number" class="block w-full px-4 py-3 bg-[#E6E2DD] border-transparent focus:border-[#7F0000] focus:bg-white focus:ring-0 rounded-lg text-gray-900 placeholder-gray-500 transition-colors" type="text" name="ic_number" :value="old('ic_number')" required autofocus autocomplete="username" />
+                        <input 
+                            id="ic_number" 
+                            class="block w-full px-4 py-3 bg-[#E6E2DD] border-transparent focus:border-[#7F0000] focus:bg-white focus:ring-0 rounded-lg text-gray-900 placeholder-gray-500 transition-colors" 
+                            type="text" 
+                            name="ic_number" 
+                            :value="old('ic_number')" 
+                            required 
+                            autofocus 
+                            autocomplete="username"
+                            placeholder="tanpa - " 
+                        />
                         <x-input-error :messages="$errors->get('ic_number')" class="mt-2" />
                     </div>
 
