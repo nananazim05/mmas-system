@@ -50,7 +50,7 @@
                             required 
                             autofocus 
                             autocomplete="username"
-                            placeholder="tanpa - " 
+                            placeholder="CTH: 010101141234" 
                         />
                         <x-input-error :messages="$errors->get('ic_number')" class="mt-2" />
                     </div>

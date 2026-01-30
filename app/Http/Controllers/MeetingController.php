@@ -199,9 +199,9 @@ class MeetingController extends Controller
 
         // Redirect mesej
         if ($isBackdatedEntry) {
-            return redirect()->route('activities.my')->with('success', 'Rekod aktiviti berjaya disimpan.');
+            return redirect()->route('activities.my')->with('success', 'Aktiviti Bejaya Dicipta!');
         } else {
-            return redirect()->route('activities.my')->with('success', 'Aktiviti berjaya dicipta!');
+            return redirect()->route('activities.my')->with('success', 'Aktiviti Berjaya Dicipta!');
         }
   }
 
